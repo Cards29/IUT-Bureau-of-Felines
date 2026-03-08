@@ -6,6 +6,8 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, index: true },
   displayName: { type: String },
   avatarUrl: { type: String },
+  passwordHash: { type: String },
+  authProviders: { type: [String], default: [] },
 }, { timestamps: true });
 
 const User = mongoose.model("User", UserSchema);
