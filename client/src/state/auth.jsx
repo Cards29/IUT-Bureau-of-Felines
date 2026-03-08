@@ -6,6 +6,10 @@ const AuthContext = React.createContext(null);
 export function AuthProvider({ children }) {
   const [loading, setLoading] = React.useState(true);
   const [user, setUser] = React.useState(null);
+  const [loginOpen, setLoginOpen] = React.useState(false);
+
+  function openLogin()  { setLoginOpen(true);  }
+  function closeLogin() { setLoginOpen(false); }
 
   async function refresh() {
     setLoading(true);
@@ -27,7 +31,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ loading, user, refresh, logout }}>
+    <AuthContext.Provider value={{ loading, user, refresh, logout, loginOpen, openLogin, closeLogin }}>
       {children}
     </AuthContext.Provider>
   );
