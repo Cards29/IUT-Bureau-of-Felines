@@ -1,8 +1,37 @@
 const router = require("express").Router();
 const passport = require("passport");
+const bcrypt = require("bcrypt");
 const { requireAuth } = require("../middleware/auth");
-const { usernameUpdateSchema } = require("../validation/schemas");
+const { usernameUpdateSchema, registerSchema, loginSchema } = require("../validation/schemas");
 const { User } = require("../models/User");
+
+// Wraps passport.authenticate("local") so it can be used with async/await
+function authenticateLocal(req, res) {
+  return new Promise((resolve, reject) => {
+    passport.authenticate("local", (err, user, info) => {
+      if (err) return reject(err);
+      resolve({ user, info });
+    })(req, res);
+  });
+}
+
+// Wraps req.login() so it can be used with async/await
+function sessionLogin(req, user) {
+  return new Promise((resolve, reject) =>
+    req.login(user, err => (err ? reject(err) : resolve()))
+  );
+}
+
+function serializeUser(u) {
+  return {
+    id: u._id,
+    username: u.username,
+    displayName: u.displayName,
+    avatarUrl: u.avatarUrl,
+    email: u.email,
+    createdAt: u.createdAt,
+  };
+}
 
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
@@ -60,6 +89,58 @@ router.patch("/me/username", requireAuth, async (req, res) => {
   await req.user.save();
 
   res.json({ ok: true, user: { id: req.user._id, username: req.user.username } });
+});
+
+router.post("/register", async (req, res, next) => {
+  try {
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const message = parsed.error.errors[0]?.message || "Invalid registration data";
+      return res.status(400).json({ message });
+    }
+    const { username, email, password } = parsed.data;
+
+    if (await User.exists({ email })) {
+      return res.status(409).json({ message: "Email already registered" });
+    }
+    if (await User.exists({ username })) {
+      return res.status(409).json({ message: "Username already taken" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await User.create({
+      username,
+      email,
+      passwordHash,
+      displayName: username,
+      authProviders: ["local"],
+    });
+
+    await sessionLogin(req, user);
+    res.status(201).json({ isAuthenticated: true, user: serializeUser(user) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post("/login", async (req, res, next) => {
+  try {
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const message = parsed.error.errors[0]?.message || "Invalid login data";
+      return res.status(400).json({ message });
+    }
+
+    const { user, info } = await authenticateLocal(req, res);
+    if (!user) {
+      return res.status(401).json({ message: info?.message || "Login failed" });
+    }
+
+    await sessionLogin(req, user);
+    res.json({ isAuthenticated: true, user: serializeUser(user) });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;
