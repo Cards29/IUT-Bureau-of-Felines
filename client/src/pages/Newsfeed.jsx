@@ -21,7 +21,7 @@ export default function Newsfeed() {
       {feed.items.map(p => (
         <PostCard key={p._id} post={p} onVoted={(score) => {
           feed.setItems(prev => prev.map(x => x._id === p._id ? { ...x, voteScore: score } : x));
-        }} />
+        }} onDelete={(id) => feed.setItems(prev => prev.filter(x => x._id !== id))} />
       ))}
 
       {feed.loading ? <div className="card">Loading...</div> : null}

@@ -153,6 +153,72 @@ textarea { min-height: 110px; resize: vertical; }
   background: rgba(0,0,0,0.06);
 }
 
+.slideshow {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  margin-top: 10px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.slideshow img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.slideshowBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  z-index: 2;
+  transition: opacity 0.2s;
+}
+
+.slideshowBtn:hover {
+  background: rgba(0,0,0,0.8);
+}
+
+.slideshowBtn.prev { left: 10px; }
+.slideshowBtn.next { right: 10px; }
+
+.slideshowDots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  cursor: pointer;
+}
+
+.dot.active {
+  background: white;
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
 
 .fab {
   position: fixed;

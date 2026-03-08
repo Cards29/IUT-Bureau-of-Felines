@@ -81,7 +81,7 @@ export default function MyProfile() {
       {posts.map(p => (
         <PostCard key={p._id} post={p} onVoted={(score) => {
           setPosts(prev => prev.map(x => x._id === p._id ? { ...x, voteScore: score } : x));
-        }} />
+        }} onDelete={(id) => setPosts(prev => prev.filter(x => x._id !== id))} />
       ))}
 
       {loadingPosts ? <div className="card">Loading...</div> : null}

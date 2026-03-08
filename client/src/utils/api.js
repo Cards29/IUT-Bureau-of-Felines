@@ -14,6 +14,8 @@ export async function apiFetch(path, options = {}) {
     ...options,
   });
 
+  if (res.status === 204) return null;
+
   if (!res.ok) {
     let msg = "Request failed";
     try {
