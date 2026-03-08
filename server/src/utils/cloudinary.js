@@ -17,14 +17,28 @@ function setupCloudinary() {
   });
 }
 
+const UPLOAD_TIMEOUT_MS = 30_000;
+
 function uploadBufferToCloudinary(buffer, options = {}) {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(options, (err, result) => {
-      if (err) return reject(new Error(err.message || "Cloudinary upload failed"));
-      resolve(result);
-    });
+  const uploadPromise = new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { timeout: UPLOAD_TIMEOUT_MS, ...options },
+      (err, result) => {
+        if (err) return reject(new Error(err.message || "Cloudinary upload failed"));
+        resolve(result);
+      }
+    );
     stream.end(buffer);
   });
+
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(
+      () => reject(new Error(`Cloudinary upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`)),
+      UPLOAD_TIMEOUT_MS
+    )
+  );
+
+  return Promise.race([uploadPromise, timeoutPromise]);
 }
 
 

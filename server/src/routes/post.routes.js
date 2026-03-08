@@ -46,17 +46,25 @@ router.post("/", requireAuth, upload.array("images", 5), async (req, res, next) 
     }
 
     const imageUrls = [];
+    const uploadedPublicIds = [];
     if (req.files && req.files.length > 0) {
-      const uploadPromises = req.files.map(file => 
-        uploadBufferToCloudinary(file.buffer, {
-          folder: "catbureau/posts",
-          resource_type: "image",
-        })
-      );
-      const results = await Promise.all(uploadPromises);
-      results.forEach(res => {
-        if (res.secure_url) imageUrls.push(res.secure_url);
-      });
+      for (const file of req.files) {
+        let result;
+        try {
+          result = await uploadBufferToCloudinary(file.buffer, {
+            folder: "catbureau/posts",
+            resource_type: "image",
+          });
+        } catch (uploadErr) {
+          // Clean up any images already uploaded in this request
+          for (const publicId of uploadedPublicIds) {
+            await deleteImageFromCloudinary(publicId).catch(() => {});
+          }
+          return next(uploadErr);
+        }
+        if (result.secure_url) imageUrls.push(result.secure_url);
+        if (result.public_id) uploadedPublicIds.push(result.public_id);
+      }
     }
 
     const post = await Post.create({

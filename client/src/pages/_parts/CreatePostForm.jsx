@@ -10,6 +10,7 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
   const [previews, setPreviews] = React.useState([]);
   const [loadingCats, setLoadingCats] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState("");
 
   async function loadCats() {
     setLoadingCats(true);
@@ -29,20 +30,32 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
     if (fixedCatId) setCatId(fixedCatId);
   }, [fixedCatId]);
 
-  const handleFiles = (e) => {
-    const selected = Array.from(e.target.files || []);
-    const remaining = 5 - images.length;
-    const toAdd = selected.slice(0, remaining);
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-    if (selected.length > remaining) {
-      alert("Maximum 5 images allowed per post");
+  const handleFiles = (e) => {
+    setError("");
+    const selected = Array.from(e.target.files || []);
+
+    const nonImages = selected.filter(f => !f.type.startsWith("image/"));
+    if (nonImages.length > 0) {
+      setError(`Only image files are allowed: ${nonImages.map(f => f.name).join(", ")}`);
+      return;
     }
 
-    const newImages = [...images, ...toAdd];
-    setImages(newImages);
+    const tooBig = selected.filter(f => f.size > MAX_FILE_SIZE);
+    if (tooBig.length > 0) {
+      setError(`These files exceed the 5MB limit: ${tooBig.map(f => f.name).join(", ")}`);
+      return;
+    }
 
-    const newPreviews = toAdd.map(file => URL.createObjectURL(file));
-    setPreviews(prev => [...prev, ...newPreviews]);
+    const remaining = 5 - images.length;
+    if (selected.length > remaining) {
+      setError("Maximum 5 images allowed per post");
+    }
+    const toAdd = selected.slice(0, remaining);
+
+    setImages(prev => [...prev, ...toAdd]);
+    setPreviews(prev => [...prev, ...toAdd.map(file => URL.createObjectURL(file))]);
   };
 
   const removeImage = (index) => {
@@ -52,8 +65,9 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
   };
 
   async function submit() {
-    if (!catId) return alert("Choose a cat");
-    if (!title.trim()) return alert("Title is required");
+    if (!catId) return setError("Choose a cat");
+    if (!title.trim()) return setError("Title is required");
+    setError("");
 
     const form = new FormData();
     form.append("catId", catId);
@@ -63,17 +77,14 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
 
     setSaving(true);
     try {
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-      const res = await fetch(`${API_BASE}/posts`, { method: "POST", credentials: "include", body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed");
+      const data = await apiFetch("/posts", { method: "POST", body: form });
 
       setTitle(""); setBody(""); setImages([]);
       previews.forEach(p => URL.revokeObjectURL(p));
       setPreviews([]);
       onCreated?.(data);
     } catch (e) {
-      alert(e.message);
+      setError(e.message || "Upload failed. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -98,7 +109,8 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
       <div className="muted" style={{ marginBottom: 8 }}>Body</div>
       <textarea className="input" value={body} onChange={e => setBody(e.target.value)} />
       <div style={{ height: 12 }} />
-      <div className="muted" style={{ marginBottom: 8 }}>Images (max 5)</div>
+      <div className="muted" style={{ marginBottom: 4 }}>Images (max 5)</div>
+      <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>Max 5MB per image</div>
       <input type="file" multiple accept="image/*" onChange={handleFiles} disabled={images.length >= 5} />
       {previews.length > 0 && (
         <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
@@ -121,8 +133,9 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
       )}
       <div style={{ height: 14 }} />
       <button className="btn primary" disabled={saving} onClick={submit}>
-        {saving ? "Posting..." : "Post"}
+        {saving ? "Posting... (this may take a moment)" : "Post"}
       </button>
+      {error && <div style={{ color: "red", marginTop: 10, fontSize: 14 }}>{error}</div>}
     </div>
   );
 }
