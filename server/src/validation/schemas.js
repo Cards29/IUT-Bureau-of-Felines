@@ -23,10 +23,23 @@ const voteSchema = z.object({
   value: z.number().int().refine(v => v === 1 || v === -1 || v === 0),
 });
 
+const registerSchema = z.object({
+  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
 module.exports = {
   catCreateSchema,
   postCreateSchema,
   commentCreateSchema,
   usernameUpdateSchema,
   voteSchema,
+  registerSchema,
+  loginSchema,
 };
