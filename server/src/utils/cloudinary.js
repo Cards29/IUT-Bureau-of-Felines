@@ -28,4 +28,8 @@ function uploadBufferToCloudinary(buffer, options = {}) {
 }
 
 
-module.exports = { setupCloudinary, uploadBufferToCloudinary };
+function deleteImageFromCloudinary(publicId) {
+  return cloudinary.uploader.destroy(publicId);
+}
+
+module.exports = { setupCloudinary, uploadBufferToCloudinary, deleteImageFromCloudinary };
