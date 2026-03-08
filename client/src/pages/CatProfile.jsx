@@ -9,7 +9,7 @@ import InfiniteSentinel from "../components/InfiniteSentinel";
 import { useAuth } from "../state/auth";
 
 export default function CatProfile() {
-  const { user } = useAuth();
+  const { user, openLogin } = useAuth();
   const { id } = useParams();
   const [cat, setCat] = React.useState(null);
 
@@ -69,7 +69,7 @@ export default function CatProfile() {
       <InfiniteSentinel disabled={!hasMore || loading} onVisible={() => loadMore(false)} />
 
       <Fab onClick={() => {
-        if (!user) return alert("Login to post");
+        if (!user) return openLogin();
         setOpen(true);
       }} />
 

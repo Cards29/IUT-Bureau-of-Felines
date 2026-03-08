@@ -8,7 +8,7 @@ import { useInfiniteFeed } from "../hooks/useInfiniteFeed";
 import { useAuth } from "../state/auth";
 
 export default function Newsfeed() {
-  const { user } = useAuth();
+  const { user, openLogin } = useAuth();
   const feed = useInfiniteFeed({ endpoint: "/posts", limit: 10 });
   const [open, setOpen] = React.useState(false);
 
@@ -29,7 +29,7 @@ export default function Newsfeed() {
       {!feed.hasMore && feed.items.length > 0 ? <div className="muted" style={{ textAlign: "center", padding: 12 }}>End</div> : null}
 
       <Fab onClick={() => {
-        if (!user) return alert("Login to post");
+        if (!user) return openLogin();
         setOpen(true);
       }} />
 

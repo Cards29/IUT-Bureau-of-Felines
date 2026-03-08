@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
+import AuthModal from "./components/AuthModal";
 import Newsfeed from "./pages/Newsfeed";
 import Cats from "./pages/Cats";
 import CatProfile from "./pages/CatProfile";
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="*" element={<div className="card">Not found</div>} />
         </Routes>
       </main>
+      <AuthModal />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { apiFetch } from "../utils/api";
 import { useAuth } from "../state/auth";
 
 export default function VoteButtons({ postId, voteScore, onVoted }) {
-  const { user } = useAuth();
+  const { user, openLogin } = useAuth();
   const [myVote, setMyVote] = React.useState(0);
   const [score, setScore] = React.useState(voteScore || 0);
 
@@ -25,7 +25,7 @@ export default function VoteButtons({ postId, voteScore, onVoted }) {
   }, [postId, user]);
 
   async function cast(value) {
-    if (!user) return alert("Login to vote");
+    if (!user) return openLogin();
     const data = await apiFetch(`/posts/${postId}/vote`, {
       method: "POST",
       body: JSON.stringify({ value }),

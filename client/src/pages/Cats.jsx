@@ -7,7 +7,7 @@ import Modal from "../components/Modal";
 import { useAuth } from "../state/auth";
 
 export default function Cats() {
-  const { user } = useAuth();
+  const { user, openLogin } = useAuth();
   const [q, setQ] = React.useState("");
   const [items, setItems] = React.useState([]);
   const [cursor, setCursor] = React.useState(null);
@@ -44,7 +44,7 @@ export default function Cats() {
           <div className="row">
             <input className="input" style={{ width: 240 }} placeholder="Search cats..." value={q} onChange={(e) => { setCursor(null); setHasMore(true); setQ(e.target.value); }} />
             <button className="btn primary" onClick={() => {
-              if (!user) return alert("Login to add cats");
+              if (!user) return openLogin();
               setOpen(true);
             }}>Add</button>
           </div>
