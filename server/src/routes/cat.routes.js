@@ -8,23 +8,27 @@ const { setupCloudinary, uploadBufferToCloudinary } = require("../utils/cloudina
 
 setupCloudinary();
 
-router.get("/", async (req, res) => {
-  const q = (req.query.q || "").trim();
-  const limit = Math.min(Math.max(parseInt(req.query.limit || "20", 10), 1), 50);
-  const cursor = req.query.cursor || null;
+router.get("/", async (req, res, next) => {
+  try {
+    const q = (req.query.q || "").trim();
+    const limit = Math.min(Math.max(parseInt(req.query.limit || "20", 10), 1), 50);
+    const cursor = req.query.cursor || null;
 
-  const filter = q ? { name: { $regex: q, $options: "i" } } : {};
-  if (cursor) filter._id = { $lt: cursor };
+    const filter = q ? { name: { $regex: q, $options: "i" } } : {};
+    if (cursor) filter._id = { $lt: cursor };
 
-  const items = await Cat.find(filter).sort({ _id: -1 }).limit(limit + 1).lean();
-  const hasMore = items.length > limit;
-  const sliced = hasMore ? items.slice(0, limit) : items;
-  const nextCursor = hasMore ? sliced[sliced.length - 1]._id : null;
+    const items = await Cat.find(filter).sort({ _id: -1 }).limit(limit + 1).lean();
+    const hasMore = items.length > limit;
+    const sliced = hasMore ? items.slice(0, limit) : items;
+    const nextCursor = hasMore ? sliced[sliced.length - 1]._id : null;
 
-  res.json({ items: sliced, hasMore, nextCursor });
+    res.json({ items: sliced, hasMore, nextCursor });
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.post("/", requireAuth, upload.single("photo"), async (req, res) => {
+router.post("/", requireAuth, upload.single("photo"), async (req, res, next) => {
   try {
     const parsed = catCreateSchema.safeParse({
       name: req.body.name,
@@ -57,37 +61,44 @@ router.post("/", requireAuth, upload.single("photo"), async (req, res) => {
     });
 
     return res.status(201).json(cat);
-  } catch (e) {
-    console.error("Create cat failed:", e);
-    return res.status(500).json({ message: e?.message || "Create cat failed" });
+  } catch (err) {
+    next(err);
   }
 });
 
-router.get("/:id", async (req, res) => {
-  const cat = await Cat.findById(req.params.id).lean();
-  if (!cat) return res.status(404).json({ message: "Cat not found" });
-  res.json(cat);
+router.get("/:id", async (req, res, next) => {
+  try {
+    const cat = await Cat.findById(req.params.id).lean();
+    if (!cat) return res.status(404).json({ message: "Cat not found" });
+    res.json(cat);
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.get("/:id/posts", async (req, res) => {
-  const limit = Math.min(Math.max(parseInt(req.query.limit || "10", 10), 1), 50);
-  const cursor = req.query.cursor || null;
+router.get("/:id/posts", async (req, res, next) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit || "10", 10), 1), 50);
+    const cursor = req.query.cursor || null;
 
-  const filter = { catId: req.params.id };
-  if (cursor) filter._id = { $lt: cursor };
+    const filter = { catId: req.params.id };
+    if (cursor) filter._id = { $lt: cursor };
 
-  const items = await Post.find(filter)
-    .sort({ _id: -1 })
-    .limit(limit + 1)
-    .populate("authorId", "username displayName avatarUrl")
-    .populate("catId", "name photoUrl")
-    .lean();
+    const items = await Post.find(filter)
+      .sort({ _id: -1 })
+      .limit(limit + 1)
+      .populate("authorId", "username displayName avatarUrl")
+      .populate("catId", "name photoUrl")
+      .lean();
 
-  const hasMore = items.length > limit;
-  const sliced = hasMore ? items.slice(0, limit) : items;
-  const nextCursor = hasMore ? sliced[sliced.length - 1]._id : null;
+    const hasMore = items.length > limit;
+    const sliced = hasMore ? items.slice(0, limit) : items;
+    const nextCursor = hasMore ? sliced[sliced.length - 1]._id : null;
 
-  res.json({ items: sliced, hasMore, nextCursor });
+    res.json({ items: sliced, hasMore, nextCursor });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;
