@@ -17,8 +17,16 @@ router.get("/", async (req, res, next) => {
     const filter = q ? { name: { $regex: q, $options: "i" } } : {};
     if (cursor) filter._id = { $lt: cursor };
 
-    // Non-admins (including guests) only see approved cats
-    if (!req.user || req.user.role !== "admin") filter.status = "approved";
+    if (req.user?.role === "admin") {
+      // Admins can filter by status (pending/approved/rejected); default to all
+      const statusFilter = req.query.status;
+      if (statusFilter && ["pending", "approved", "rejected"].includes(statusFilter)) {
+        filter.status = statusFilter;
+      }
+    } else {
+      // Non-admins (including guests) only see approved cats
+      filter.status = "approved";
+    }
 
     const items = await Cat.find(filter).sort({ _id: -1 }).limit(limit + 1).lean();
     const hasMore = items.length > limit;
