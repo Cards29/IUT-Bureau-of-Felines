@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ loading, user, refresh, logout, loginOpen, openLogin, closeLogin }}>
+    <AuthContext.Provider value={{ loading, user, refresh, logout, loginOpen, openLogin, closeLogin, isAdmin: user?.role === "admin" }}>
       {children}
     </AuthContext.Provider>
   );
