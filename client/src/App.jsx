@@ -10,6 +10,7 @@ import Users from "./pages/Users";
 import UserProfile from "./pages/UserProfile";
 import MyProfile from "./pages/MyProfile";
 import PostDetail from "./pages/PostDetail";
+import Admin from "./pages/Admin";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/users/:id" element={<UserProfile />} />
           <Route path="/me" element={<MyProfile />} />
           <Route path="/posts/:id" element={<PostDetail />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<div className="card">Not found</div>} />
         </Routes>
       </main>
