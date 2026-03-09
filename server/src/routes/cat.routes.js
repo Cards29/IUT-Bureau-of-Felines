@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { requireAuth } = require("../middleware/auth");
+const { requireAuth, requireAdmin } = require("../middleware/auth");
 const { Cat } = require("../models/Cat");
 const { Post } = require("../models/Post");
 const { catCreateSchema } = require("../validation/schemas");
@@ -16,6 +16,9 @@ router.get("/", async (req, res, next) => {
 
     const filter = q ? { name: { $regex: q, $options: "i" } } : {};
     if (cursor) filter._id = { $lt: cursor };
+
+    // Non-admins (including guests) only see approved cats
+    if (!req.user || req.user.role !== "admin") filter.status = "approved";
 
     const items = await Cat.find(filter).sort({ _id: -1 }).limit(limit + 1).lean();
     const hasMore = items.length > limit;
@@ -58,6 +61,7 @@ router.post("/", requireAuth, upload.single("photo"), async (req, res, next) => 
       bio,
       photoUrl,
       createdBy: req.user._id,
+      status: "pending",
     });
 
     return res.status(201).json(cat);
@@ -68,8 +72,12 @@ router.post("/", requireAuth, upload.single("photo"), async (req, res, next) => 
 
 router.get("/:id", async (req, res, next) => {
   try {
-    const cat = await Cat.findById(req.params.id).lean();
+    const cat = await Cat.findById(req.params.id).populate("createdBy", "username displayName").lean();
     if (!cat) return res.status(404).json({ message: "Cat not found" });
+    // Non-admins cannot see pending or rejected cats
+    if (cat.status !== "approved" && req.user?.role !== "admin") {
+      return res.status(404).json({ message: "Cat not found" });
+    }
     res.json(cat);
   } catch (err) {
     next(err);
@@ -96,6 +104,36 @@ router.get("/:id/posts", async (req, res, next) => {
     const nextCursor = hasMore ? sliced[sliced.length - 1]._id : null;
 
     res.json({ items: sliced, hasMore, nextCursor });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.patch("/:id/approve", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const cat = await Cat.findById(req.params.id);
+    if (!cat) return res.status(404).json({ message: "Cat not found" });
+
+    cat.status = "approved";
+    cat.rejectionReason = "";
+    await cat.save();
+
+    res.json(cat);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.patch("/:id/reject", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const cat = await Cat.findById(req.params.id);
+    if (!cat) return res.status(404).json({ message: "Cat not found" });
+
+    cat.status = "rejected";
+    cat.rejectionReason = (req.body.reason || "").trim();
+    await cat.save();
+
+    res.json(cat);
   } catch (err) {
     next(err);
   }
