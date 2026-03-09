@@ -9,7 +9,7 @@ import InfiniteSentinel from "../components/InfiniteSentinel";
 import { useAuth } from "../state/auth";
 
 export default function CatProfile() {
-  const { user, openLogin } = useAuth();
+  const { user, openLogin, isAdmin } = useAuth();
   const { id } = useParams();
   const [cat, setCat] = React.useState(null);
 
@@ -57,6 +57,14 @@ export default function CatProfile() {
             <div className="muted">{cat.bio || ""}</div>
           </div>
         </div>
+        {isAdmin && cat.status !== "approved" && (
+          <div style={{ marginTop: 8, color: cat.status === "rejected" ? "red" : "#b45309", fontSize: 13 }}>
+            Status: <strong>{cat.status}</strong>
+            {cat.status === "rejected" && cat.rejectionReason && (
+              <span> — {cat.rejectionReason}</span>
+            )}
+          </div>
+        )}
       </div>
 
       {posts.map(p => (
