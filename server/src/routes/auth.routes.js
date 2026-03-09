@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const passport = require("passport");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const { requireAuth } = require("../middleware/auth");
 const { usernameUpdateSchema, registerSchema, loginSchema } = require("../validation/schemas");
 const { User } = require("../models/User");
@@ -30,6 +31,7 @@ function serializeUser(u) {
     avatarUrl: u.avatarUrl,
     email: u.email,
     createdAt: u.createdAt,
+    role: u.role,
   };
 }
 
@@ -52,14 +54,7 @@ router.get("/me", (req, res) => {
     const u = req.user;
     return res.json({
       isAuthenticated: true,
-      user: {
-        id: u._id,
-        username: u.username,
-        displayName: u.displayName,
-        avatarUrl: u.avatarUrl,
-        email: u.email,
-        createdAt: u.createdAt,
-      }
+      user: serializeUser(u),
     });
   }
   return res.json({ isAuthenticated: false, user: null });
@@ -138,6 +133,38 @@ router.post("/login", async (req, res, next) => {
 
     await sessionLogin(req, user);
     res.json({ isAuthenticated: true, user: serializeUser(user) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post("/promote", requireAuth, async (req, res, next) => {
+  try {
+    const promotionSecret = process.env.ADMIN_PROMOTION_SECRET;
+    if (!promotionSecret) {
+      return res.status(500).json({ message: "Promotion not configured" });
+    }
+
+    const provided = req.body.secret || "";
+    const secretBuffer = Buffer.from(promotionSecret);
+    const providedBuffer = Buffer.from(provided);
+
+    // Constant-time comparison to prevent timing attacks
+    if (
+      secretBuffer.length !== providedBuffer.length ||
+      !crypto.timingSafeEqual(secretBuffer, providedBuffer)
+    ) {
+      return res.status(403).json({ message: "Invalid promotion secret" });
+    }
+
+    if (req.user.role === "admin") {
+      return res.json({ ok: true, message: "Already an admin" });
+    }
+
+    req.user.role = "admin";
+    await req.user.save();
+
+    res.json({ ok: true, message: "You are now an admin" });
   } catch (err) {
     next(err);
   }
