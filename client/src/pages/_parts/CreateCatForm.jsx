@@ -5,9 +5,13 @@ export default function CreateCatForm({ onCreated }) {
   const [bio, setBio] = React.useState("");
   const [photo, setPhoto] = React.useState(null);
   const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [success, setSuccess] = React.useState(null);
 
   async function submit() {
-    if (!name.trim()) return alert("Name is required");
+    setError(null);
+    setSuccess(null);
+    if (!name.trim()) return setError("Name is required");
 
     const form = new FormData();
     form.append("name", name);
@@ -22,9 +26,10 @@ export default function CreateCatForm({ onCreated }) {
       if (!res.ok) throw new Error(data.message || "Failed");
 
       setName(""); setBio(""); setPhoto(null);
+      setSuccess("Your request has been submitted and is pending approval.");
       onCreated?.(data);
     } catch (e) {
-      alert(e.message);
+      setError(e.message);
     } finally {
       setSaving(false);
     }
@@ -41,8 +46,10 @@ export default function CreateCatForm({ onCreated }) {
       <div className="muted" style={{ marginBottom: 8 }}>Photo</div>
       <input type="file" accept="image/*" onChange={e => setPhoto(e.target.files?.[0] || null)} />
       <div style={{ height: 14 }} />
+      {error && <div style={{ color: "red", fontSize: 12, marginBottom: 8 }}>{error}</div>}
+      {success && <div style={{ color: "green", fontSize: 12, marginBottom: 8 }}>{success}</div>}
       <button className="btn primary" disabled={saving} onClick={submit}>
-        {saving ? "Saving..." : "Create"}
+        {saving ? "Requesting..." : "Request"}
       </button>
     </div>
   );

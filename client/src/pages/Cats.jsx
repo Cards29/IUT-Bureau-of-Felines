@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
 import InfiniteSentinel from "../components/InfiniteSentinel";
 import CreateCatForm from "./_parts/CreateCatForm";
@@ -8,6 +8,7 @@ import { useAuth } from "../state/auth";
 
 export default function Cats() {
   const { user, openLogin } = useAuth();
+  const navigate = useNavigate();
   const [q, setQ] = React.useState("");
   const [items, setItems] = React.useState([]);
   const [cursor, setCursor] = React.useState(null);
@@ -46,7 +47,10 @@ export default function Cats() {
             <button className="btn primary" onClick={() => {
               if (!user) return openLogin();
               setOpen(true);
-            }}>Add</button>
+            }}>Request</button>
+            {user && (
+              <button className="btn" onClick={() => navigate("/me/cats")}>My Requests</button>
+            )}
           </div>
         </div>
       </div>
@@ -69,7 +73,7 @@ export default function Cats() {
         <InfiniteSentinel disabled={!hasMore || loading} onVisible={() => loadMore(false)} />
       </div>
 
-      <Modal open={open} title="Add Cat" onClose={() => setOpen(false)}>
+      <Modal open={open} title="Request a Cat" onClose={() => setOpen(false)}>
         <CreateCatForm onCreated={() => {
           setOpen(false);
           setItems([]);

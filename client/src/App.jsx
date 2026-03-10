@@ -12,6 +12,8 @@ import MyProfile from "./pages/MyProfile";
 import PostDetail from "./pages/PostDetail";
 import Admin from "./pages/Admin";
 
+import MyCats from "./pages/MyCats";
+
 export default function App() {
   return (
     <div className="appShell">
@@ -26,6 +28,7 @@ export default function App() {
           <Route path="/users" element={<Users />} />
           <Route path="/users/:id" element={<UserProfile />} />
           <Route path="/me" element={<MyProfile />} />
+          <Route path="/me/cats" element={<MyCats />} />
           <Route path="/posts/:id" element={<PostDetail />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<div className="card">Not found</div>} />

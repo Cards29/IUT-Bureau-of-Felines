@@ -3,7 +3,7 @@ import { apiFetch } from "../utils/api";
 import { useAuth } from "../state/auth";
 import PostCard from "../components/PostCard";
 import InfiniteSentinel from "../components/InfiniteSentinel";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 
 export default function MyProfile() {
   const { user, loading, refresh } = useAuth();
@@ -76,6 +76,8 @@ export default function MyProfile() {
         <button className="btn primary" disabled={saving} onClick={saveUsername}>
           {saving ? "Saving..." : "Save"}
         </button>
+        <div style={{ height: 10 }} />
+        <Link to="/me/cats" className="btn">My Cat Requests</Link>
       </div>
 
       {posts.map(p => (
