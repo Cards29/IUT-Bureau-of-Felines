@@ -1,50 +1,73 @@
 import React from "react";
 import { apiFetch } from "../utils/api";
 import { useAuth } from "../state/auth";
+import VoteModal from "./VoteModal";
 
-export default function VoteButtons({ postId, voteScore, onVoted }) {
+export default function VoteButtons({ postId, postType, voteScore, onVoted }) {
   const { user, openLogin } = useAuth();
-  const [myVote, setMyVote] = React.useState(0);
-  const [score, setScore] = React.useState(voteScore || 0);
-
-  React.useEffect(() => {
-    setScore(voteScore || 0);
-  }, [voteScore]);
+  const [open, setOpen] = React.useState(false);
+  const [myContribution, setMyContribution] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     let active = true;
     async function load() {
-      if (!user) { setMyVote(0); return; }
+      if (!user) { setMyContribution(null); return; }
+      setLoading(true);
       try {
         const data = await apiFetch(`/posts/${postId}/my-vote`);
-        if (active) setMyVote(data.value || 0);
-      } catch {}
+        if (!active) return;
+        if (data.voted) {
+          setMyContribution(data.contribution);
+        } else {
+          setMyContribution(null);
+        }
+      } catch {
+        if (active) setMyContribution(null);
+      } finally {
+        if (active) setLoading(false);
+      }
     }
     load();
     return () => { active = false; };
   }, [postId, user]);
 
-  async function cast(value) {
+  function handleVoteClick() {
     if (!user) return openLogin();
-    const data = await apiFetch(`/posts/${postId}/vote`, {
-      method: "POST",
-      body: JSON.stringify({ value }),
-    });
-    setScore(data.voteScore);
-    const mv = await apiFetch(`/posts/${postId}/my-vote`);
-    setMyVote(mv.value || 0);
-    onVoted?.(data.voteScore);
+    setOpen(true);
+  }
+
+  function handleVoted(contribution) {
+    setMyContribution(contribution);
+    onVoted?.(contribution);
+  }
+
+  const isCommendation = postType === "commendation";
+
+  if (loading) {
+    return <div style={{ width: 60, height: 28 }} />;
+  }
+
+  if (myContribution !== null) {
+    return (
+      <div style={{ fontWeight: 900, color: isCommendation ? "green" : "red", fontSize: 14 }}>
+        {isCommendation ? "+" : "−"}{Math.abs(myContribution).toFixed(2)}
+      </div>
+    );
   }
 
   return (
-    <div className="row" style={{ gap: 6 }}>
-      <button className="btn small" onClick={() => cast(myVote === 1 ? 0 : 1)} title="Upvote">
-        {myVote === 1 ? "▲" : "△"}
+    <>
+      <button className="btn small" onClick={handleVoteClick}>
+        Vote
       </button>
-      <div style={{ width: 36, textAlign: "center", fontWeight: 900 }}>{score}</div>
-      <button className="btn small" onClick={() => cast(myVote === -1 ? 0 : -1)} title="Downvote">
-        {myVote === -1 ? "▼" : "▽"}
-      </button>
-    </div>
+      <VoteModal
+        open={open}
+        onClose={() => setOpen(false)}
+        postId={postId}
+        postType={postType}
+        onVoted={handleVoted}
+      />
+    </>
   );
 }

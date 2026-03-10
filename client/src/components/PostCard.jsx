@@ -60,7 +60,7 @@ export default function PostCard({ post, onVoted, onDelete }) {
               Delete
             </button>
           ) : null}
-          <VoteButtons postId={post._id} voteScore={post.voteScore} onVoted={onVoted} />
+          <VoteButtons postId={post._id} postType={post.type} voteScore={post.voteScore} onVoted={onVoted} />
         </div>
       </div>
 
