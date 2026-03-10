@@ -8,6 +8,8 @@ const PostSchema = new mongoose.Schema({
   body: { type: String, default: "" },
   imageUrl: { type: String, default: "" },
   imageUrls: { type: [String], default: [] },
+  videoUrl: { type: String, default: "" },
+  videoPublicId: { type: String, default: "" },
   voteScore: { type: Number, default: 0, index: true },
   commentCount: { type: Number, default: 0 },
 }, { timestamps: true });

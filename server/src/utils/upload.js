@@ -7,4 +7,11 @@ const upload = multer({
   },
 });
 
-module.exports = { upload };
+const uploadMedia = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50 * 1024 * 1024,
+  },
+});
+
+module.exports = { upload, uploadMedia };

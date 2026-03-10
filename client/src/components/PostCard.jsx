@@ -66,7 +66,13 @@ export default function PostCard({ post, onVoted, onDelete }) {
 
       {post.body ? <p style={{ marginTop: 10, whiteSpace: "pre-wrap" }}>{post.body}</p> : null}
       
-      {post.imageUrls && post.imageUrls.length > 0 ? (
+      {post.videoUrl ? (
+        <video
+          src={post.videoUrl}
+          controls
+          style={{ width: "100%", borderRadius: 4, marginTop: 10 }}
+        />
+      ) : post.imageUrls && post.imageUrls.length > 0 ? (
         <div className="slideshow">
           <img src={post.imageUrls[currentImg]} alt={`post-${currentImg}`} />
           {post.imageUrls.length > 1 && (

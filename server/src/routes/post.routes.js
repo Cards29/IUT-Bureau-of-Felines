@@ -5,8 +5,10 @@ const { Comment } = require("../models/Comment");
 const { Vote } = require("../models/Vote");
 const { Cat } = require("../models/Cat");
 const { postCreateSchema, commentCreateSchema, commendationVoteSchema, infractionVoteSchema } = require("../validation/schemas");
-const { upload } = require("../utils/upload");
-const { setupCloudinary, uploadBufferToCloudinary, deleteImageFromCloudinary } = require("../utils/cloudinary");
+const { uploadMedia } = require("../utils/upload");
+const { setupCloudinary, uploadBufferToCloudinary, deleteImageFromCloudinary, deleteVideoFromCloudinary } = require("../utils/cloudinary");
+
+const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
 
 setupCloudinary();
 
@@ -35,7 +37,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.post("/", requireAuth, upload.array("images", 5), async (req, res, next) => {
+router.post("/", requireAuth, uploadMedia.fields([{ name: "images", maxCount: 5 }, { name: "video", maxCount: 1 }]), async (req, res, next) => {
   try {
     const parsed = postCreateSchema.safeParse({
       catId: req.body.catId,
@@ -47,10 +49,20 @@ router.post("/", requireAuth, upload.array("images", 5), async (req, res, next) 
       return res.status(400).json({ message: "Invalid post data" });
     }
 
+    const hasImages = req.files?.images && req.files.images.length > 0;
+    const hasVideo = req.files?.video && req.files.video.length > 0;
+
+    if (hasImages && hasVideo) {
+      return res.status(400).json({ message: "Submit either images or a video, not both" });
+    }
+
     const imageUrls = [];
     const uploadedPublicIds = [];
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
+    let videoUrl = "";
+    let videoPublicId = "";
+
+    if (hasImages) {
+      for (const file of req.files.images) {
         let result;
         try {
           result = await uploadBufferToCloudinary(file.buffer, {
@@ -69,11 +81,31 @@ router.post("/", requireAuth, upload.array("images", 5), async (req, res, next) 
       }
     }
 
+    if (hasVideo) {
+      const file = req.files.video[0];
+      if (!ALLOWED_VIDEO_TYPES.includes(file.mimetype)) {
+        return res.status(400).json({ message: "Invalid video format. Allowed: mp4, webm, mov" });
+      }
+      let result;
+      try {
+        result = await uploadBufferToCloudinary(file.buffer, {
+          folder: "catbureau/posts",
+          resource_type: "video",
+        });
+      } catch (uploadErr) {
+        return next(uploadErr);
+      }
+      videoUrl = result.secure_url || "";
+      videoPublicId = result.public_id || "";
+    }
+
     const post = await Post.create({
       ...parsed.data,
       authorId: req.user._id,
       imageUrl: imageUrls[0] || "",
       imageUrls,
+      videoUrl,
+      videoPublicId,
     });
 
     const populated = await Post.findById(post._id)
@@ -234,6 +266,10 @@ router.delete("/:id", requireAuth, async (req, res, next) => {
         const publicId = parts[1].replace(/^v\d+\//, "").replace(/\.[^/.]+$/, "");
         await deleteImageFromCloudinary(publicId);
       }
+    }
+
+    if (post.videoPublicId) {
+      await deleteVideoFromCloudinary(post.videoPublicId).catch(() => {});
     }
 
     await post.deleteOne();

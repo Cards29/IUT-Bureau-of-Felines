@@ -46,4 +46,8 @@ function deleteImageFromCloudinary(publicId) {
   return cloudinary.uploader.destroy(publicId);
 }
 
-module.exports = { setupCloudinary, uploadBufferToCloudinary, deleteImageFromCloudinary };
+function deleteVideoFromCloudinary(publicId) {
+  return cloudinary.uploader.destroy(publicId, { resource_type: "video" });
+}
+
+module.exports = { setupCloudinary, uploadBufferToCloudinary, deleteImageFromCloudinary, deleteVideoFromCloudinary };
