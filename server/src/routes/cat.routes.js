@@ -82,8 +82,9 @@ router.get("/:id", async (req, res, next) => {
   try {
     const cat = await Cat.findById(req.params.id).populate("createdBy", "username displayName").lean();
     if (!cat) return res.status(404).json({ message: "Cat not found" });
-    // Non-admins cannot see pending or rejected cats
-    if (cat.status !== "approved" && req.user?.role !== "admin") {
+    const isAdmin = req.user?.role === "admin";
+    const isOwner = req.user && req.user._id.toString() === cat.createdBy?._id?.toString();
+    if (cat.status !== "approved" && !isAdmin && !isOwner) {
       return res.status(404).json({ message: "Cat not found" });
     }
     res.json(cat);

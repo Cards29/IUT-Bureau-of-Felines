@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const { User } = require("../models/User");
 const { Post } = require("../models/Post");
+const { Cat } = require("../models/Cat");
+const { requireAuth } = require("../middleware/auth");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -47,6 +49,36 @@ router.get("/:id/posts", async (req, res, next) => {
       .populate("catId", "name photoUrl")
       .lean();
 
+    const hasMore = items.length > limit;
+    const sliced = hasMore ? items.slice(0, limit) : items;
+    const nextCursor = hasMore ? sliced[sliced.length - 1]._id : null;
+
+    res.json({ items: sliced, hasMore, nextCursor });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/:id/cats", requireAuth, async (req, res, next) => {
+  try {
+    const isOwner = req.user._id.toString() === req.params.id;
+    const isAdmin = req.user.role === "admin";
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const limit = Math.min(Math.max(parseInt(req.query.limit || "20", 10), 1), 50);
+    const cursor = req.query.cursor || null;
+    const statusFilter = req.query.status;
+
+    const filter = { createdBy: req.params.id };
+    if (cursor) filter._id = { $lt: cursor };
+    if (statusFilter && ["pending", "approved", "rejected"].includes(statusFilter)) {
+      filter.status = statusFilter;
+    }
+
+    const items = await Cat.find(filter).sort({ _id: -1 }).limit(limit + 1).lean();
     const hasMore = items.length > limit;
     const sliced = hasMore ? items.slice(0, limit) : items;
     const nextCursor = hasMore ? sliced[sliced.length - 1]._id : null;
