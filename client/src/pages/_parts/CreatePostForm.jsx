@@ -4,6 +4,7 @@ import { apiFetch } from "../../utils/api";
 export default function CreatePostForm({ onCreated, fixedCatId }) {
   const [cats, setCats] = React.useState([]);
   const [catId, setCatId] = React.useState(fixedCatId || "");
+  const [type, setType] = React.useState("commendation");
   const [title, setTitle] = React.useState("");
   const [body, setBody] = React.useState("");
   const [images, setImages] = React.useState([]);
@@ -71,6 +72,7 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
 
     const form = new FormData();
     form.append("catId", catId);
+    form.append("type", type);
     form.append("title", title);
     form.append("body", body);
     images.forEach(img => form.append("images", img));
@@ -102,6 +104,24 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
           <div style={{ height: 12 }} />
         </>
       ) : null}
+
+      <div className="muted" style={{ marginBottom: 8 }}>Type</div>
+      <div className="row" style={{ gap: 8, marginBottom: 12 }}>
+        <button
+          type="button"
+          className={`btn${type === "commendation" ? " primary" : ""}`}
+          onClick={() => setType("commendation")}
+        >
+          Commendation
+        </button>
+        <button
+          type="button"
+          className={`btn${type === "infraction" ? " primary" : ""}`}
+          onClick={() => setType("infraction")}
+        >
+          Infraction
+        </button>
+      </div>
 
       <div className="muted" style={{ marginBottom: 8 }}>Title</div>
       <input className="input" value={title} onChange={e => setTitle(e.target.value)} />
