@@ -28,7 +28,7 @@ router.get("/", async (req, res, next) => {
       filter.status = "approved";
     }
 
-    const items = await Cat.find(filter).sort({ _id: -1 }).limit(limit + 1).lean();
+    const items = await Cat.find(filter).sort({ score: -1, _id: -1 }).limit(limit + 1).lean();
     const hasMore = items.length > limit;
     const sliced = hasMore ? items.slice(0, limit) : items;
     const nextCursor = hasMore ? sliced[sliced.length - 1]._id : null;

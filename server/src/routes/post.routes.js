@@ -3,7 +3,8 @@ const { requireAuth } = require("../middleware/auth");
 const { Post } = require("../models/Post");
 const { Comment } = require("../models/Comment");
 const { Vote } = require("../models/Vote");
-const { postCreateSchema, commentCreateSchema, voteSchema } = require("../validation/schemas");
+const { Cat } = require("../models/Cat");
+const { postCreateSchema, commentCreateSchema, commendationVoteSchema, infractionVoteSchema } = require("../validation/schemas");
 const { upload } = require("../utils/upload");
 const { setupCloudinary, uploadBufferToCloudinary, deleteImageFromCloudinary } = require("../utils/cloudinary");
 
@@ -38,6 +39,7 @@ router.post("/", requireAuth, upload.array("images", 5), async (req, res, next) 
   try {
     const parsed = postCreateSchema.safeParse({
       catId: req.body.catId,
+      type: req.body.type,
       title: req.body.title,
       body: req.body.body,
     });
@@ -141,35 +143,49 @@ router.post("/:id/comments", requireAuth, async (req, res, next) => {
 
 router.post("/:id/vote", requireAuth, async (req, res, next) => {
   try {
-    const parsed = voteSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ message: "Invalid vote" });
-    }
-    const { value } = parsed.data;
-
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
 
     const existing = await Vote.findOne({ postId: post._id, userId: req.user._id });
-
-    let delta = 0;
-
-    if (!existing && value !== 0) {
-      await Vote.create({ postId: post._id, userId: req.user._id, value });
-      delta = value;
-    } else if (existing && value === 0) {
-      delta = -existing.value;
-      await existing.deleteOne();
-    } else if (existing && existing.value !== value) {
-      delta = value - existing.value;
-      existing.value = value;
-      await existing.save();
+    if (existing) {
+      return res.status(409).json({ message: "You have already voted on this post" });
     }
 
-    if (delta !== 0) {
-      post.voteScore += delta;
-      await post.save();
+    const schema = post.type === "commendation" ? commendationVoteSchema : infractionVoteSchema;
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      const message = parsed.error.errors[0]?.message || "Invalid vote data";
+      return res.status(400).json({ message });
     }
+
+    let contribution;
+    if (post.type === "commendation") {
+      const { benefit, effort, cuteness } = parsed.data;
+      contribution = ((benefit * 1.5) + (effort * 1.0) + (cuteness * 0.5)) / 3;
+    } else {
+      const { malice, destruction, cuteness } = parsed.data;
+      contribution = ((malice * 1.5) + (destruction * 1.0) - (cuteness * 0.8)) / 3;
+    }
+
+    const cat = await Cat.findById(post.catId);
+    if (!cat) return res.status(404).json({ message: "Cat not found" });
+
+    await Vote.create({
+      postId: post._id,
+      userId: req.user._id,
+      ...parsed.data,
+      contribution,
+    });
+
+    if (post.type === "commendation") {
+      cat.score += contribution;
+    } else {
+      cat.score -= contribution;
+    }
+    await cat.save();
+
+    post.voteScore = contribution;
+    await post.save();
 
     res.json({ ok: true, voteScore: post.voteScore });
   } catch (err) {
@@ -180,7 +196,16 @@ router.post("/:id/vote", requireAuth, async (req, res, next) => {
 router.get("/:id/my-vote", requireAuth, async (req, res, next) => {
   try {
     const existing = await Vote.findOne({ postId: req.params.id, userId: req.user._id }).lean();
-    res.json({ value: existing ? existing.value : 0 });
+    if (!existing) return res.json({ voted: false });
+    res.json({
+      voted: true,
+      contribution: existing.contribution,
+      benefit: existing.benefit,
+      effort: existing.effort,
+      malice: existing.malice,
+      destruction: existing.destruction,
+      cuteness: existing.cuteness,
+    });
   } catch (err) {
     next(err);
   }
