@@ -7,6 +7,7 @@ const catCreateSchema = z.object({
 
 const postCreateSchema = z.object({
   catId: z.string().min(1),
+  type: z.enum(["commendation", "infraction"]),
   title: z.string().min(3).max(160),
   body: z.string().max(4000).optional().default(""),
 });
@@ -19,8 +20,16 @@ const usernameUpdateSchema = z.object({
   username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
 });
 
-const voteSchema = z.object({
-  value: z.number().int().refine(v => v === 1 || v === -1 || v === 0),
+const commendationVoteSchema = z.object({
+  benefit:  z.number().int().min(0).max(10),
+  effort:   z.number().int().min(0).max(10),
+  cuteness: z.number().int().min(0).max(10),
+});
+
+const infractionVoteSchema = z.object({
+  malice:      z.number().int().min(0).max(10),
+  destruction: z.number().int().min(0).max(10),
+  cuteness:    z.number().int().min(0).max(10),
 });
 
 const registerSchema = z.object({
@@ -39,7 +48,8 @@ module.exports = {
   postCreateSchema,
   commentCreateSchema,
   usernameUpdateSchema,
-  voteSchema,
+  commendationVoteSchema,
+  infractionVoteSchema,
   registerSchema,
   loginSchema,
 };
