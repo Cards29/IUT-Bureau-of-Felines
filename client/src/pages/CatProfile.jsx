@@ -55,6 +55,9 @@ export default function CatProfile() {
           <div>
             <div style={{ fontWeight: 900, fontSize: 18 }}>{cat.name}</div>
             <div className="muted">{cat.bio || ""}</div>
+            {cat.status === "approved" && typeof cat.score === "number" && (
+              <div style={{ fontSize: 14, marginTop: 4 }}>Score: <strong>{cat.score.toFixed(1)}</strong></div>
+            )}
           </div>
         </div>
         {isAdmin && cat.status !== "approved" && (

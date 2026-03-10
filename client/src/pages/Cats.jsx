@@ -64,6 +64,9 @@ export default function Cats() {
                 <div>
                   <div style={{ fontWeight: 900 }}>{c.name}</div>
                   <div className="muted" style={{ fontSize: 12 }}>{(c.bio || "").slice(0, 52)}</div>
+                  {typeof c.score === "number" && (
+                    <div className="muted" style={{ fontSize: 12 }}>Score: {c.score.toFixed(1)}</div>
+                  )}
                 </div>
               </div>
             </Link>
