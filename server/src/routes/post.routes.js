@@ -173,6 +173,58 @@ router.post("/:id/comments", requireAuth, async (req, res, next) => {
   }
 });
 
+router.patch("/:postId/comments/:commentId", requireAuth, async (req, res, next) => {
+  try {
+    const { body } = req.body;
+    if (!body || body.trim().length === 0) {
+      return res.status(400).json({ message: "Comment body cannot be empty" });
+    }
+
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    if (!comment.authorId.equals(req.user._id)) {
+      return res.status(403).json({ message: "You can only edit your own comments" });
+    }
+
+    comment.body = body.trim();
+    await comment.save();
+
+    const populated = await Comment.findById(comment._id)
+      .populate("authorId", "username displayName avatarUrl")
+      .lean();
+
+    res.json(populated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete("/:postId/comments/:commentId", requireAuth, async (req, res, next) => {
+  try {
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    const isAuthor = comment.authorId.equals(req.user._id);
+    const isAdmin = req.user.role === "admin";
+
+    if (!isAuthor && !isAdmin) {
+      return res.status(403).json({ message: "You can only delete your own comments" });
+    }
+
+    const post = await Post.findById(req.params.postId);
+    if (post) {
+      post.commentCount = Math.max(0, post.commentCount - 1);
+      await post.save();
+    }
+
+    await comment.deleteOne();
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.post("/:id/vote", requireAuth, async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
