@@ -1,4 +1,5 @@
 import React from "react";
+import toast from "react-hot-toast";
 import Modal from "./Modal";
 import Comment from "./Comment";
 import { useAuth } from "../state/auth";
@@ -45,8 +46,9 @@ export default function CommentsModal({ open, postId, onClose }) {
       setBody("");
       setComments(prev => [...prev, newC]);
       setPost(prev => ({ ...prev, commentCount: (prev.commentCount || 0) + 1 }));
+      toast.success("Comment posted.");
     } catch (e) {
-      alert(`Error: ${e.message}`);
+      toast.error(e.message || "Failed to post comment.");
     } finally {
       setSubmitting(false);
     }
@@ -71,7 +73,7 @@ export default function CommentsModal({ open, postId, onClose }) {
               className="input"
               value={body}
               onChange={e => setBody(e.target.value)}
-              placeholder="What's your thought? 💭"
+              placeholder="Write your remarks here..."
               rows={3}
               style={{ background: "var(--bg)", display: "block", width: "100%", resize: "vertical", marginBottom: 8 }}
             />
@@ -95,23 +97,23 @@ export default function CommentsModal({ open, postId, onClose }) {
         )}
 
         {!user && (
-          <div style={{ background: "var(--card)", padding: 12, borderRadius: 8, marginBottom: 12, fontSize: 13, textAlign: "center", color: "var(--muted)" }}>
-            <a href="/login" style={{ color: "var(--accent)", textDecoration: "underline" }}>Log in</a> to comment
+          <div style={{ background: "var(--bg-alt)", padding: 12, borderRadius: 3, marginBottom: 12, fontSize: 13, textAlign: "center", color: "var(--muted)", border: "1px solid var(--border)" }}>
+            Log in to leave a remark on the record.
           </div>
         )}
 
         {/* Comments List */}
         <div className="commentsModalList">
-          {loading && <div style={{ padding: 20, textAlign: "center", color: "var(--muted)" }}>Loading comments...</div>}
-          
-          {error && <div style={{ padding: 12, background: "rgba(220, 38, 38, 0.1)", color: "#dc2626", borderRadius: 8, fontSize: 13 }}>Error: {error}</div>}
-          
+          {loading && <div style={{ padding: 20, textAlign: "center", color: "var(--muted)" }}>Loading remarks...</div>}
+
+          {error && <div style={{ padding: 12, background: "var(--infraction-bg)", color: "var(--infraction)", borderRadius: 3, fontSize: 13, border: "1px solid var(--infraction-border)" }}>Error: {error}</div>}
+
           {!loading && !error && comments.length === 0 && (
             <div style={{ padding: 20, textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
-              ✨ No comments yet. Be the first!
+              No remarks on file. Be the first to comment.
             </div>
           )}
-          
+
           {!loading && comments.length > 0 && (
             comments.map(c => (
               <Comment

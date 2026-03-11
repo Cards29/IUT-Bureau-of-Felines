@@ -1,4 +1,5 @@
 import React from "react";
+import toast from "react-hot-toast";
 import { apiFetch } from "../../utils/api";
 
 export default function CreatePostForm({ onCreated, fixedCatId }) {
@@ -33,9 +34,9 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
     if (fixedCatId) setCatId(fixedCatId);
   }, [fixedCatId]);
 
-  const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-  const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
-  const MAX_VIDEO_DURATION = 30; // seconds
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+  const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+  const MAX_VIDEO_DURATION = 30;
 
   const handleFiles = (e) => {
     setError("");
@@ -128,6 +129,7 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
     if (video) form.append("video", video);
 
     setSaving(true);
+    const toastId = toast.loading("Filing report...");
     try {
       const data = await apiFetch("/posts", { method: "POST", body: form });
 
@@ -137,19 +139,23 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
       if (videoPreview) URL.revokeObjectURL(videoPreview);
       setVideo(null);
       setVideoPreview(null);
+      toast.success("Report filed successfully.", { id: toastId });
       onCreated?.(data);
     } catch (e) {
+      toast.error(e.message || "Upload failed. Please try again.", { id: toastId });
       setError(e.message || "Upload failed. Please try again.");
     } finally {
       setSaving(false);
     }
   }
 
+  const labelStyle = { marginBottom: 6, fontSize: 12, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--muted)" };
+
   return (
     <div>
       {!fixedCatId ? (
         <>
-          <div className="muted" style={{ marginBottom: 8 }}>Cat</div>
+          <div style={labelStyle}>Cat</div>
           <select className="input" value={catId} onChange={e => setCatId(e.target.value)} disabled={loadingCats}>
             <option value="">{loadingCats ? "Loading..." : "Select a cat"}</option>
             {cats.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
@@ -158,8 +164,8 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
         </>
       ) : null}
 
-      <div className="muted" style={{ marginBottom: 8 }}>Type</div>
-      <div className="row" style={{ gap: 8, marginBottom: 12 }}>
+      <div style={labelStyle}>Report Type</div>
+      <div className="row" style={{ gap: 8, marginBottom: 14 }}>
         <button
           type="button"
           className={`btn${type === "commendation" ? " primary" : ""}`}
@@ -176,14 +182,14 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
         </button>
       </div>
 
-      <div className="muted" style={{ marginBottom: 8 }}>Title</div>
-      <input className="input" value={title} onChange={e => setTitle(e.target.value)} />
+      <div style={labelStyle}>Title *</div>
+      <input className="input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Brief subject line..." />
       <div style={{ height: 12 }} />
-      <div className="muted" style={{ marginBottom: 8 }}>Body</div>
-      <textarea className="input" value={body} onChange={e => setBody(e.target.value)} />
+      <div style={labelStyle}>Details</div>
+      <textarea className="input" value={body} onChange={e => setBody(e.target.value)} placeholder="Describe the incident in full..." />
       <div style={{ height: 12 }} />
 
-      <div className="muted" style={{ marginBottom: 4 }}>Images (max 5)</div>
+      <div style={labelStyle}>Images (max 5)</div>
       <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>Max 5MB per image. Cannot be combined with a video.</div>
       <input
         type="file"
@@ -196,16 +202,16 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
         <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
           {previews.map((url, i) => (
             <div key={url} style={{ position: "relative" }}>
-              <img src={url} alt="preview" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 4 }} />
+              <img src={url} alt="preview" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 3, border: "1px solid var(--border)" }} />
               <button
                 onClick={() => removeImage(i)}
                 style={{
-                  position: "absolute", top: -6, right: -6, background: "red", color: "white",
+                  position: "absolute", top: -6, right: -6, background: "var(--danger)", color: "white",
                   border: "none", borderRadius: "50%", width: 18, height: 18, cursor: "pointer",
                   fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center",
                 }}
               >
-                ×
+                &times;
               </button>
             </div>
           ))}
@@ -213,7 +219,7 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
       )}
 
       <div style={{ height: 14 }} />
-      <div className="muted" style={{ marginBottom: 4 }}>Video (max 30s)</div>
+      <div style={labelStyle}>Video (max 30s)</div>
       <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>Max 50MB. Allowed formats: mp4, webm, mov. Cannot be combined with images.</div>
       {!videoPreview ? (
         <input
@@ -227,26 +233,26 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
           <video
             src={videoPreview}
             muted
-            style={{ width: 160, borderRadius: 4, display: "block" }}
+            style={{ width: 160, borderRadius: 3, display: "block", border: "1px solid var(--border)" }}
           />
           <button
             onClick={removeVideo}
             style={{
-              position: "absolute", top: -6, right: -6, background: "red", color: "white",
+              position: "absolute", top: -6, right: -6, background: "var(--danger)", color: "white",
               border: "none", borderRadius: "50%", width: 18, height: 18, cursor: "pointer",
               fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            ×
+            &times;
           </button>
         </div>
       )}
 
-      <div style={{ height: 14 }} />
+      <div style={{ height: 16 }} />
       <button className="btn primary" disabled={saving} onClick={submit}>
-        {saving ? "Posting... (this may take a moment)" : "Post"}
+        {saving ? "Filing... (this may take a moment)" : "File Report"}
       </button>
-      {error && <div style={{ color: "red", marginTop: 10, fontSize: 14 }}>{error}</div>}
+      {error && <div style={{ color: "var(--danger)", marginTop: 10, fontSize: 13 }}>{error}</div>}
     </div>
   );
 }

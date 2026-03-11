@@ -45,14 +45,18 @@ export default function VoteButtons({ postId, postType, voteScore, onVoted }) {
   const isCommendation = postType === "commendation";
 
   if (loading) {
-    return <div style={{ width: 60, height: 28 }} />;
+    return (
+      <div style={{ width: 60, height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="skeleton" style={{ width: 48, height: 14, borderRadius: 2 }} />
+      </div>
+    );
   }
 
   if (myContribution !== null) {
     return (
-      <div style={{ fontWeight: 900, color: isCommendation ? "green" : "red", fontSize: 14 }}>
+      <span className={`voteContribution ${isCommendation ? "commendation" : "infraction"}`}>
         {isCommendation ? "+" : "−"}{Math.abs(myContribution).toFixed(2)}
-      </div>
+      </span>
     );
   }
 

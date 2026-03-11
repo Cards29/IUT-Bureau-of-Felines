@@ -1,5 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 import { apiFetch } from "../utils/api";
 import PostCard from "../components/PostCard";
 import Comment from "../components/Comment";
@@ -7,14 +8,13 @@ import { useAuth } from "../state/auth";
 
 export default function PostDetail() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, openLogin } = useAuth();
 
   const [post, setPost] = React.useState(null);
   const [comments, setComments] = React.useState([]);
   const [postLoading, setPostLoading] = React.useState(true);
   const [commentsLoading, setCommentsLoading] = React.useState(true);
   const [loadError, setLoadError] = React.useState(null);
-  const [commentError, setCommentError] = React.useState(null);
   const [body, setBody] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -42,7 +42,7 @@ export default function PostDetail() {
   async function addComment() {
     if (!body.trim()) return;
     setSubmitting(true);
-    setCommentError(null);
+    const toastId = toast.loading("Filing remark...");
     try {
       const newC = await apiFetch(`/posts/${id}/comments`, {
         method: "POST",
@@ -51,8 +51,9 @@ export default function PostDetail() {
       setBody("");
       setComments(prev => [...prev, newC]);
       setPost(prev => ({ ...prev, commentCount: (prev.commentCount || 0) + 1 }));
+      toast.success("Remark filed.", { id: toastId });
     } catch (e) {
-      setCommentError(e.message || "Failed to post comment");
+      toast.error(e.message || "Failed to file remark.", { id: toastId });
     } finally {
       setSubmitting(false);
     }
@@ -67,65 +68,130 @@ export default function PostDetail() {
     setComments(prev => prev.map(c => c._id === updatedComment._id ? updatedComment : c));
   }
 
-  if (postLoading) return <div className="card">Loading post...</div>;
-  if (loadError) return <div className="card" style={{ color: "#dc2626" }}>❌ {loadError}</div>;
-  if (!post) return <div className="card">Post not found</div>;
+  if (postLoading) {
+    return (
+      <div style={{ maxWidth: 700 }}>
+        <div className="skeletonCard" style={{ marginBottom: 16 }}>
+          <div className="skeletonLine" style={{ width: "30%", height: 10, marginBottom: 10 }} />
+          <div className="skeletonLine" style={{ width: "65%", height: 20, marginBottom: 8 }} />
+          <div className="skeletonLine" style={{ width: "90%", height: 11, marginBottom: 6 }} />
+          <div className="skeletonLine" style={{ width: "75%", height: 11 }} />
+        </div>
+        <div className="skeletonCard">
+          <div className="skeletonLine" style={{ width: "20%", height: 10, marginBottom: 12 }} />
+          <div className="skeletonLine" style={{ width: "100%", height: 14, marginBottom: 8 }} />
+          <div className="skeletonLine" style={{ width: "85%", height: 14 }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div style={{ maxWidth: 700 }}>
+        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--danger)" }}>
+          <div style={{ fontFamily: "Special Elite, serif", fontSize: 16, marginBottom: 6 }}>Record Unavailable</div>
+          <div style={{ fontSize: 13, color: "var(--muted)" }}>{loadError}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div style={{ maxWidth: 700 }}>
+        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--muted)" }}>
+          <div style={{ fontFamily: "Special Elite, serif", fontSize: 16 }}>No record found.</div>
+        </div>
+      </div>
+    );
+  }
+
+  const commentCountLabel = post.commentCount === 0
+    ? "No remarks on file"
+    : post.commentCount === 1
+    ? "1 Remark on File"
+    : `${post.commentCount} Remarks on File`;
 
   return (
-    <div className="card">
-      <PostCard post={post} onVoted={(score) => setPost(prev => ({ ...prev, voteScore: score }))} />
+    <div style={{ maxWidth: 700 }}>
+      <div className="postFeed" style={{ maxWidth: "100%", marginBottom: 0 }}>
+        <PostCard post={post} onVoted={(score) => setPost(prev => ({ ...prev, voteScore: score }))} />
+      </div>
 
-      <div className="commentsSection">
-        {/* Comment Count Header */}
-        <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--border)" }}>
-          {post.commentCount === 0
-            ? "No comments yet"
-            : post.commentCount === 1
-            ? "1 Comment"
-            : `${post.commentCount} Comments`}
+      <div className="card" style={{ marginTop: 16 }}>
+        {/* Comment count header */}
+        <div style={{
+          fontFamily: "Special Elite, serif",
+          fontSize: 14,
+          letterSpacing: "0.04em",
+          marginBottom: 14,
+          paddingBottom: 10,
+          borderBottom: "1px solid var(--border)",
+          color: "var(--muted)",
+          textTransform: "uppercase",
+        }}>
+          {commentCountLabel}
         </div>
 
-        {/* Add Comment Section */}
+        {/* Add comment */}
         {user ? (
-          <div className="commentInputSection">
+          <div style={{ marginBottom: 16 }}>
+            <div className="muted" style={{ fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>
+              Your Remark
+            </div>
             <textarea
               className="input"
               value={body}
-              onChange={e => {
-                setBody(e.target.value);
-                setCommentError(null);
-              }}
-              placeholder="What's your thought? 💭"
+              onChange={e => setBody(e.target.value)}
+              placeholder="State your observations for the record..."
               rows={3}
               style={{ background: "var(--bg)", display: "block", marginBottom: 10, width: "100%", resize: "vertical" }}
             />
-            {commentError && (
-              <div style={{ color: "#dc2626", fontSize: 12, marginBottom: 8 }}>
-                ⚠️ {commentError}
-              </div>
-            )}
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <button
                 className="btn primary"
                 disabled={submitting || !body.trim()}
                 onClick={addComment}
               >
-                {submitting ? "Posting..." : "Post"}
+                {submitting ? "Filing..." : "File Remark"}
               </button>
             </div>
           </div>
         ) : (
-          <div style={{ background: "var(--card)", padding: 12, borderRadius: 8, marginBottom: 12, fontSize: 13, textAlign: "center", color: "var(--muted)" }}>
-            <a href="/login" style={{ color: "var(--accent)", textDecoration: "underline" }}>Log in</a> to comment
+          <div style={{
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            borderRadius: 3,
+            padding: "12px 16px",
+            marginBottom: 14,
+            fontSize: 13,
+            textAlign: "center",
+            color: "var(--muted)",
+          }}>
+            <button
+              onClick={openLogin}
+              style={{ background: "none", border: "none", color: "var(--accent)", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: "underline", padding: 0 }}
+            >
+              Log in
+            </button>
+            {" "}to file a remark on this record.
           </div>
         )}
 
-        {/* Comments List */}
+        {/* Comments list */}
         {commentsLoading ? (
-          <div style={{ padding: 20, textAlign: "center", color: "var(--muted)" }}>Loading comments...</div>
+          <div>
+            {[1, 2].map(i => (
+              <div key={i} style={{ padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
+                <div className="skeletonLine" style={{ width: "25%", height: 10, marginBottom: 8 }} />
+                <div className="skeletonLine" style={{ width: "80%", height: 13 }} />
+              </div>
+            ))}
+          </div>
         ) : comments.length === 0 ? (
-          <div style={{ padding: 20, textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
-            ✨ Be the first to share your thoughts!
+          <div style={{ padding: "20px 0", textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
+            No remarks on file. Be the first to comment.
           </div>
         ) : (
           <div className="commentsList">

@@ -1,22 +1,47 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import VoteButtons from "./VoteButtons";
 import CommentsModal from "./CommentsModal";
+import ConfirmModal from "./ConfirmModal";
 import { useAuth } from "../state/auth";
 import { apiFetch } from "../utils/api";
 
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
+}
+
 export default function PostCard({ post, onVoted, onDelete }) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [currentImg, setCurrentImg] = React.useState(0);
   const [commentsOpen, setCommentsOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
   const isAuthor = user && post.authorId?._id === user.id;
+  const canDelete = isAuthor || isAdmin;
 
   async function handleDelete() {
+    setDeleting(true);
     try {
       await apiFetch(`/posts/${post._id}`, { method: "DELETE" });
+      setDeleteOpen(false);
+      toast.success("Post deleted.");
       if (onDelete) onDelete(post._id);
     } catch (e) {
-      alert(e.message);
+      setDeleteOpen(false);
+      toast.error(e.message || "Failed to delete post.");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -30,62 +55,73 @@ export default function PostCard({ post, onVoted, onDelete }) {
     setCurrentImg((prev) => (prev - 1 + post.imageUrls.length) % post.imageUrls.length);
   };
 
+  const isCommendation = post.type === "commendation";
+
   return (
     <>
-      <div className="card">
-        <div className="row" style={{ justifyContent: "space-between", gap: 12 }}>
-          <div className="row" style={{ gap: 10 }}>
+      <div className={`postCard ${post.type || ""}`}>
+        {/* Header: meta + delete */}
+        <div className="postCardHeader">
+          <div className="postCardMeta">
             {post.authorId?.avatarUrl ? (
-              <img className="avatar" src={post.authorId.avatarUrl} alt="avatar" />
+              <img className="avatar" src={post.authorId.avatarUrl} alt="avatar" style={{ width: 26, height: 26 }} />
             ) : (
-              <div className="avatar" />
+              <div className="avatar" style={{ width: 26, height: 26 }} />
             )}
-            <div>
-              <div style={{ fontWeight: 900 }}>
-                <Link to={`/posts/${post._id}`}>{post.title}</Link>
-              </div>
-              <div className="muted" style={{ fontSize: 13 }}>
-                <Link to={`/users/${post.authorId?._id}`} style={{ textDecoration: "underline" }}>
-                  {post.authorId?.username || "unknown"}
-                </Link>
-                {" • "}
-                <Link to={`/cats/${post.catId?._id}`} style={{ textDecoration: "underline" }}>
-                  {post.catId?.name || "cat"}
-                </Link>
-                {" • "}
-                {new Date(post.createdAt).toLocaleString()}
-              </div>
-            </div>
+            <Link to={`/users/${post.authorId?._id}`}>
+              {post.authorId?.username || "unknown"}
+            </Link>
+            <span style={{ color: "var(--border-strong)" }}>&#9642;</span>
+            <Link to={`/cats/${post.catId?._id}`}>
+              {post.catId?.name || "cat"}
+            </Link>
+            <span style={{ color: "var(--border-strong)" }}>&#9642;</span>
+            <span title={new Date(post.createdAt).toLocaleString()}>{timeAgo(post.createdAt)}</span>
           </div>
-          <div className="row" style={{ gap: 8, alignItems: "center" }}>
-            {isAuthor && onDelete ? (
-              <button className="btn" style={{ color: "var(--color-danger, red)", padding: "2px 8px" }} onClick={handleDelete}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span className={`postTypeBadge ${post.type || ""}`}>
+              {isCommendation ? "Commendation" : "Infraction"}
+            </span>
+            {canDelete && onDelete ? (
+              <button
+                className="btn small"
+                style={{ color: "var(--danger)", borderColor: "var(--danger)", padding: "2px 8px", fontSize: 11 }}
+                onClick={() => setDeleteOpen(true)}
+              >
                 Delete
               </button>
             ) : null}
-            <VoteButtons postId={post._id} postType={post.type} voteScore={post.voteScore} onVoted={onVoted} />
           </div>
         </div>
 
-        {post.body ? <p style={{ marginTop: 10, whiteSpace: "pre-wrap" }}>{post.body}</p> : null}
-        
+        {/* Title */}
+        <div className="postCardTitle">
+          <Link to={`/posts/${post._id}`}>{post.title}</Link>
+        </div>
+
+        {/* Body */}
+        {post.body ? (
+          <div className="postCardBody">{post.body}</div>
+        ) : null}
+
+        {/* Media */}
         {post.videoUrl ? (
           <video
+            className="postVideo"
             src={post.videoUrl}
             controls
-            style={{ width: "100%", borderRadius: 4, marginTop: 10 }}
           />
         ) : post.imageUrls && post.imageUrls.length > 0 ? (
           <div className="slideshow">
             <img src={post.imageUrls[currentImg]} alt={`post-${currentImg}`} />
             {post.imageUrls.length > 1 && (
               <>
-                <button className="slideshowBtn prev" onClick={prevImg}>‹</button>
-                <button className="slideshowBtn next" onClick={nextImg}>›</button>
+                <button className="slideshowBtn prev" onClick={prevImg}>&#8249;</button>
+                <button className="slideshowBtn next" onClick={nextImg}>&#8250;</button>
                 <div className="slideshowDots">
                   {post.imageUrls.map((_, i) => (
-                    <div 
-                      key={i} 
+                    <div
+                      key={i}
                       className={`dot ${i === currentImg ? "active" : ""}`}
                       onClick={() => setCurrentImg(i)}
                     />
@@ -95,21 +131,41 @@ export default function PostCard({ post, onVoted, onDelete }) {
             )}
           </div>
         ) : post.imageUrl ? (
-          <img className="postImage" style={{ marginTop: 10 }} src={post.imageUrl} alt="post" />
+          <img className="postImage" src={post.imageUrl} alt="post" />
         ) : null}
 
-        <button 
-          className="commentCountBtn"
-          onClick={() => setCommentsOpen(true)}
-        >
-          💬 {post.commentCount || 0} {post.commentCount === 1 ? "comment" : "comments"}
-        </button>
+        {/* Action bar */}
+        <div className="postCardActions">
+          <div className="postCardActionsLeft">
+            <button
+              className="commentCountBtn"
+              onClick={() => setCommentsOpen(true)}
+            >
+              &#128172; {post.commentCount || 0} {post.commentCount === 1 ? "comment" : "comments"}
+            </button>
+          </div>
+          <div className="postCardActionsRight">
+            <VoteButtons postId={post._id} postType={post.type} voteScore={post.voteScore} onVoted={onVoted} />
+          </div>
+        </div>
       </div>
 
-      <CommentsModal 
-        open={commentsOpen} 
-        postId={post._id} 
-        onClose={() => setCommentsOpen(false)} 
+      <CommentsModal
+        open={commentsOpen}
+        postId={post._id}
+        onClose={() => setCommentsOpen(false)}
+      />
+
+      <ConfirmModal
+        open={deleteOpen}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger={true}
+        isLoading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteOpen(false)}
       />
     </>
   );

@@ -9,18 +9,21 @@ export default function Topbar() {
   return (
     <div className="topbar">
       <div className="topbarInner">
-        <div className="title">The Bureau</div>
+        <div className="title">Bureau of Felines</div>
         <div className="row">
-          <button className="btn small" onClick={toggle}>
-            {theme === "light" ? "Dark" : "Light"}
+          <button className="btn small" onClick={toggle} title="Toggle theme">
+            {theme === "light" ? "Dark Mode" : "Light Mode"}
           </button>
           {!user ? (
-            <button className="btn primary" onClick={openLogin}>Login</button>
+            <button className="btn primary small" onClick={openLogin}>Log In</button>
           ) : (
             <>
-              {user.avatarUrl ? <img className="avatar" src={user.avatarUrl} alt="avatar" /> : <div className="avatar" />}
-              <div style={{ fontWeight: 800 }}>{user.username}</div>
-              <button className="btn" onClick={logout}>Logout</button>
+              {user.avatarUrl
+                ? <img className="avatar" src={user.avatarUrl} alt="avatar" />
+                : <div className="avatar" style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, color: "var(--muted)" }}>&#128100;</div>
+              }
+              <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.03em" }}>{user.username}</span>
+              <button className="btn small" onClick={logout}>Log Out</button>
             </>
           )}
         </div>

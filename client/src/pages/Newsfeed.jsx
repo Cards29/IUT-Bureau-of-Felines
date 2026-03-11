@@ -17,23 +17,46 @@ export default function Newsfeed() {
   }, []);
 
   return (
-    <div>
+    <div className="postFeed">
       {feed.items.map(p => (
         <PostCard key={p._id} post={p} onVoted={(score) => {
           feed.setItems(prev => prev.map(x => x._id === p._id ? { ...x, voteScore: score } : x));
         }} onDelete={(id) => feed.setItems(prev => prev.filter(x => x._id !== id))} />
       ))}
 
-      {feed.loading ? <div className="card">Loading...</div> : null}
+      {feed.loading ? (
+        <>
+          {[1, 2].map(i => (
+            <div key={i} className="skeletonCard">
+              <div className="skeletonLine" style={{ width: "40%", height: 10, marginBottom: 10 }} />
+              <div className="skeletonLine" style={{ width: "75%", height: 18, marginBottom: 12 }} />
+              <div className="skeletonLine" style={{ width: "90%", height: 10, marginBottom: 6 }} />
+              <div className="skeletonLine" style={{ width: "60%", height: 10 }} />
+            </div>
+          ))}
+        </>
+      ) : null}
+
+      {!feed.loading && feed.items.length === 0 ? (
+        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--muted)" }}>
+          <div style={{ fontFamily: "Special Elite, serif", fontSize: 18, marginBottom: 6 }}>No posts on file.</div>
+          <div style={{ fontSize: 13 }}>Be the first to file a commendation or infraction.</div>
+        </div>
+      ) : null}
+
       <InfiniteSentinel disabled={!feed.hasMore || feed.loading} onVisible={() => feed.loadMore(false)} />
-      {!feed.hasMore && feed.items.length > 0 ? <div className="muted" style={{ textAlign: "center", padding: 12 }}>End</div> : null}
+      {!feed.hasMore && feed.items.length > 0 ? (
+        <div className="muted" style={{ textAlign: "center", padding: "12px 0", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+          — End of Records —
+        </div>
+      ) : null}
 
       <Fab onClick={() => {
         if (!user) return openLogin();
         setOpen(true);
       }} />
 
-      <Modal open={open} title="Create Post" onClose={() => setOpen(false)}>
+      <Modal open={open} title="File a Report" onClose={() => setOpen(false)}>
         <CreatePostForm onCreated={() => {
           setOpen(false);
           feed.reset();

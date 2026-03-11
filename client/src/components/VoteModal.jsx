@@ -1,4 +1,5 @@
 import React from "react";
+import toast from "react-hot-toast";
 import Modal from "./Modal";
 import { apiFetch } from "../utils/api";
 
@@ -80,9 +81,15 @@ export default function VoteModal({ open, onClose, postId, postType, onVoted }) 
         method: "POST",
         body: JSON.stringify(body),
       });
+      toast.success(isCommendation ? "Commendation filed." : "Infraction filed.");
       onVoted(data.voteScore);
       handleClose();
     } catch (e) {
+      if (e.status === 409) {
+        toast.error("You have already voted on this post.");
+      } else {
+        toast.error(e.message || "Failed to submit vote.");
+      }
       setError(e.message || "Failed to submit vote. Please try again.");
     } finally {
       setSubmitting(false);

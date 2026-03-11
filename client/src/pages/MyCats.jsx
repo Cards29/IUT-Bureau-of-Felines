@@ -6,11 +6,27 @@ import InfiniteSentinel from "../components/InfiniteSentinel";
 
 const TABS = ["pending", "approved", "rejected"];
 
+const TAB_LABELS = {
+  pending: "Pending Review",
+  approved: "Approved",
+  rejected: "Rejected",
+};
+
 const STATUS_COLORS = {
   pending: "#b45309",
-  approved: "green",
-  rejected: "red",
+  approved: "#166534",
+  rejected: "var(--danger)",
 };
+
+function ScoreBadge({ score }) {
+  if (typeof score !== "number") return null;
+  const tier = score >= 12 ? "high" : score >= 8 ? "mid" : "low";
+  return (
+    <span className={`scoreBadge ${tier}`}>
+      Merit: {score.toFixed(1)}
+    </span>
+  );
+}
 
 export default function MyCats() {
   const { user, loading: authLoading } = useAuth();
@@ -50,53 +66,107 @@ export default function MyCats() {
     }
   }, [tab, user?.id]);
 
-  if (authLoading) return <div className="card">Loading...</div>;
+  if (authLoading) {
+    return (
+      <div style={{ maxWidth: 760 }}>
+        <div className="skeletonCard">
+          <div className="skeletonLine" style={{ width: "30%", height: 18, marginBottom: 12 }} />
+          <div className="skeletonLine" style={{ width: "50%", height: 12 }} />
+        </div>
+      </div>
+    );
+  }
   if (!user) return <Navigate to="/newsfeed" replace />;
 
   return (
-    <div>
-      <div className="card">
-        <div style={{ fontWeight: 900 }}>My Cat Requests</div>
-        <div className="row" style={{ marginTop: 12, gap: 8 }}>
+    <div style={{ maxWidth: 760 }}>
+      {/* Header toolbar */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ fontFamily: "Special Elite, serif", fontSize: 18, letterSpacing: "0.04em", marginBottom: 14 }}>
+          My Registration Requests
+        </div>
+        <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
           {TABS.map(t => (
             <button
               key={t}
               className={"btn" + (tab === t ? " primary" : "")}
               onClick={() => setTab(t)}
-              style={{ textTransform: "capitalize" }}
             >
-              {t}
+              {TAB_LABELS[t]}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="card">
-        {items.length === 0 && !loading && (
-          <div className="muted">No {tab} requests.</div>
-        )}
-        <div className="row" style={{ flexWrap: "wrap" }}>
-          {items.map(c => (
-            <Link key={c._id} to={`/cats/${c._id}`} className="card" style={{ width: 230, margin: 0 }}>
-              <div className="row">
-                {c.photoUrl ? <img className="thumb" src={c.photoUrl} alt="cat" /> : <div className="thumb" />}
-                <div>
-                  <div style={{ fontWeight: 900 }}>{c.name}</div>
-                  <div className="muted" style={{ fontSize: 12 }}>{(c.bio || "").slice(0, 52)}</div>
-                  <div style={{ fontSize: 12, marginTop: 4, color: STATUS_COLORS[c.status], fontWeight: 600, textTransform: "capitalize" }}>
-                    {c.status}
-                    {c.status === "rejected" && c.rejectionReason && (
-                      <span style={{ fontWeight: 400 }}> — {c.rejectionReason}</span>
-                    )}
-                  </div>
-                </div>
+      {/* Cat list */}
+      <div className="catFeed">
+        {items.map(c => (
+          <Link key={c._id} to={`/cats/${c._id}`} className="catCard">
+            {c.photoUrl
+              ? <img className="catCardPhoto" src={c.photoUrl} alt={c.name} />
+              : <div className="catCardPhotoPlaceholder">&#128049;</div>
+            }
+            <div className="catCardBody">
+              <div className="catCardName">{c.name}</div>
+              {c.bio && <div className="catCardBio">{c.bio}</div>}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 4 }}>
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  color: STATUS_COLORS[c.status],
+                }}>
+                  {TAB_LABELS[c.status] || c.status}
+                </span>
+                {c.status === "approved" && <ScoreBadge score={c.score} />}
               </div>
-            </Link>
+              {c.status === "rejected" && c.rejectionReason && (
+                <div className="rejectionCallout">
+                  <span style={{ fontWeight: 700, letterSpacing: "0.04em" }}>Reason: </span>
+                  {c.rejectionReason}
+                </div>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Skeleton loaders */}
+      {loading ? (
+        <div className="catFeed">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="catCard" style={{ pointerEvents: "none" }}>
+              <div className="catCardPhotoPlaceholder" style={{ background: "var(--border)" }} />
+              <div className="catCardBody" style={{ gap: 10 }}>
+                <div className="skeletonLine" style={{ width: "40%", height: 18 }} />
+                <div className="skeletonLine" style={{ width: "80%", height: 11 }} />
+                <div className="skeletonLine" style={{ width: "30%", height: 11 }} />
+              </div>
+            </div>
           ))}
         </div>
-        {loading && <div className="muted" style={{ paddingTop: 10 }}>Loading...</div>}
-        <InfiniteSentinel disabled={!hasMore || loading} onVisible={() => loadMore(false)} />
-      </div>
+      ) : null}
+
+      {!loading && items.length === 0 ? (
+        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--muted)" }}>
+          <div style={{ fontFamily: "Special Elite, serif", fontSize: 16, marginBottom: 6 }}>
+            No {TAB_LABELS[tab].toLowerCase()} requests.
+          </div>
+          <div style={{ fontSize: 13 }}>
+            {tab === "pending" && "Submitted registrations awaiting review will appear here."}
+            {tab === "approved" && "Your approved felines will appear here."}
+            {tab === "rejected" && "Rejected registration requests will appear here."}
+          </div>
+        </div>
+      ) : null}
+
+      <InfiniteSentinel disabled={!hasMore || loading} onVisible={() => loadMore(false)} />
+      {!hasMore && items.length > 0 ? (
+        <div className="muted" style={{ textAlign: "center", padding: "12px 0", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+          — End of Records —
+        </div>
+      ) : null}
     </div>
   );
 }

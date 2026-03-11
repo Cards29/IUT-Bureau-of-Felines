@@ -1,4 +1,5 @@
 import React from "react";
+import toast from "react-hot-toast";
 import { useAuth } from "../state/auth";
 import { apiFetch } from "../utils/api";
 import ConfirmModal from "./ConfirmModal";
@@ -17,9 +18,10 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
     try {
       await apiFetch(`/posts/${postId}/comments/${comment._id}`, { method: "DELETE" });
       setShowDeleteConfirm(false);
+      toast.success("Comment deleted.");
       if (onDelete) onDelete(comment._id);
     } catch (e) {
-      alert(`Error: ${e.message}`);
+      toast.error(e.message || "Failed to delete comment.");
     } finally {
       setSubmitting(false);
     }
@@ -27,7 +29,7 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
 
   async function handleSaveEdit() {
     if (!editBody.trim()) {
-      alert("Comment cannot be empty");
+      toast.error("Comment cannot be empty.");
       return;
     }
     setSubmitting(true);
@@ -37,9 +39,10 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
         body: JSON.stringify({ body: editBody.trim() }),
       });
       setIsEditing(false);
+      toast.success("Comment updated.");
       if (onUpdate) onUpdate(updated);
     } catch (e) {
-      alert(`Error: ${e.message}`);
+      toast.error(e.message || "Failed to update comment.");
     } finally {
       setSubmitting(false);
     }
@@ -82,9 +85,9 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
               </button>
             )}
             {canDelete && (
-              <button 
-                className="commentBtn danger" 
-                onClick={() => setShowDeleteConfirm(true)} 
+              <button
+                className="commentBtn danger"
+                onClick={() => setShowDeleteConfirm(true)}
                 disabled={submitting}
                 title={isAdmin && !isAuthor ? "Delete as admin" : "Delete"}
               >
