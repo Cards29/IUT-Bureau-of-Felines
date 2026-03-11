@@ -18,10 +18,14 @@ router.get("/", async (req, res, next) => {
     if (cursor) filter._id = { $lt: cursor };
 
     if (req.user?.role === "admin") {
-      // Admins can filter by status (pending/approved/rejected); default to all
+      // Admins see pending and approved cats by default
+      // Can filter to see only rejected cats if explicitly requested
       const statusFilter = req.query.status;
       if (statusFilter && ["pending", "approved", "rejected"].includes(statusFilter)) {
         filter.status = statusFilter;
+      } else {
+        // Default: show pending and approved, excluding rejected
+        filter.status = { $in: ["pending", "approved"] };
       }
     } else {
       // Non-admins (including guests) only see approved cats
