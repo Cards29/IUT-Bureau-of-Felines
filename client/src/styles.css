@@ -128,6 +128,11 @@ textarea { min-height: 110px; resize: vertical; }
   border-color: var(--accent);
   color: white;
 }
+.btn.danger {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
 .btn.small { padding: 6px 10px; border-radius: 10px; font-size: 13px; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 

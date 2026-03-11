@@ -1,9 +1,10 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
 import PostCard from "../components/PostCard";
 import Fab from "../components/Fab";
 import Modal from "../components/Modal";
+import ConfirmModal from "../components/ConfirmModal";
 import CreatePostForm from "./_parts/CreatePostForm";
 import InfiniteSentinel from "../components/InfiniteSentinel";
 import { useAuth } from "../state/auth";
@@ -11,6 +12,7 @@ import { useAuth } from "../state/auth";
 export default function CatProfile() {
   const { user, openLogin, isAdmin } = useAuth();
   const { id } = useParams();
+  const navigate = useNavigate();
   const [cat, setCat] = React.useState(null);
 
   const [posts, setPosts] = React.useState([]);
@@ -18,6 +20,8 @@ export default function CatProfile() {
   const [hasMore, setHasMore] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
 
   async function loadCat() {
     const data = await apiFetch(`/cats/${id}`);
@@ -42,6 +46,19 @@ export default function CatProfile() {
     }
   }
 
+  async function handleDeleteCat() {
+    setDeleting(true);
+    try {
+      await apiFetch(`/cats/${id}`, { method: "DELETE" });
+      setShowDeleteConfirm(false);
+      navigate("/cats");
+    } catch (e) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   React.useEffect(() => { loadCat(); }, [id]);
   React.useEffect(() => { setPosts([]); setCursor(null); setHasMore(true); loadMore(true); }, [id]);
 
@@ -50,15 +67,27 @@ export default function CatProfile() {
   return (
     <div>
       <div className="card">
-        <div className="row">
-          {cat.photoUrl ? <img className="thumb" src={cat.photoUrl} alt="cat" /> : <div className="thumb" />}
-          <div>
-            <div style={{ fontWeight: 900, fontSize: 18 }}>{cat.name}</div>
-            <div className="muted">{cat.bio || ""}</div>
-            {cat.status === "approved" && typeof cat.score === "number" && (
-              <div style={{ fontSize: 14, marginTop: 4 }}>Score: <strong>{cat.score.toFixed(1)}</strong></div>
-            )}
+        <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div className="row">
+            {cat.photoUrl ? <img className="thumb" src={cat.photoUrl} alt="cat" /> : <div className="thumb" />}
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 18 }}>{cat.name}</div>
+              <div className="muted">{cat.bio || ""}</div>
+              {cat.status === "approved" && typeof cat.score === "number" && (
+                <div style={{ fontSize: 14, marginTop: 4 }}>Score: <strong>{cat.score.toFixed(1)}</strong></div>
+              )}
+            </div>
           </div>
+          {isAdmin && (
+            <button
+              className="btn danger"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleting}
+              style={{ marginLeft: 8 }}
+            >
+              Delete
+            </button>
+          )}
         </div>
         {isAdmin && cat.status !== "approved" && (
           <div style={{ marginTop: 8, color: cat.status === "rejected" ? "red" : "#b45309", fontSize: 13 }}>
@@ -93,6 +122,18 @@ export default function CatProfile() {
           loadMore(true);
         }} />
       </Modal>
+
+      <ConfirmModal
+        open={showDeleteConfirm}
+        title="Delete Cat Profile"
+        message={`Are you sure you want to delete "${cat.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger={true}
+        isLoading={deleting}
+        onConfirm={handleDeleteCat}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

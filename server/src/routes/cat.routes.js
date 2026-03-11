@@ -148,4 +148,16 @@ router.patch("/:id/reject", requireAuth, requireAdmin, async (req, res, next) =>
   }
 });
 
+router.delete("/:id", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const cat = await Cat.findById(req.params.id);
+    if (!cat) return res.status(404).json({ message: "Cat not found" });
+
+    await cat.deleteOne();
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
