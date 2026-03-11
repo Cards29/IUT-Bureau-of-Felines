@@ -18,6 +18,19 @@ export default function Newsfeed() {
 
   return (
     <div className="max-w-[700px]">
+      {/* Narrow-viewport fallback — hidden on large screens where the FAB appears */}
+      <div className="flex justify-end mb-3 lg:hidden">
+        <button
+          className="btn btn-primary btn-sm font-[Special_Elite]"
+          onClick={() => {
+            if (!user) return openLogin();
+            setOpen(true);
+          }}
+        >
+          + New Report
+        </button>
+      </div>
+
       {feed.items.map(p => (
         <PostCard key={p._id} post={p} onVoted={(score) => {
           feed.setItems(prev => prev.map(x => x._id === p._id ? { ...x, voteScore: score } : x));

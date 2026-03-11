@@ -15,11 +15,13 @@ import Admin from "./pages/Admin";
 import MyCats from "./pages/MyCats";
 
 export default function App() {
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+
   return (
-    <div className="grid grid-cols-[250px_1fr] min-h-screen max-[960px]:grid-cols-1">
-      <Sidebar />
-      <main className="flex-1 px-5 pb-5">
-        <Topbar />
+    <div className={`grid min-h-screen max-[960px]:grid-cols-1 ${sidebarOpen ? "grid-cols-[250px_1fr]" : "grid-cols-1"}`}>
+      <Sidebar open={sidebarOpen} />
+      <main className="flex-1 px-5 pb-5 min-w-0">
+        <Topbar onToggleSidebar={() => setSidebarOpen((o) => !o)} />
         <Routes>
           <Route path="/" element={<Navigate to="/newsfeed" replace />} />
           <Route path="/newsfeed" element={<Newsfeed />} />

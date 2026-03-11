@@ -110,34 +110,41 @@ h1, h2, h3, h4, h5, h6 {
    Score badge tiers
    ============================================================ */
 .scoreBadge.high {
-  color: var(--color-success);
-  background: color-mix(in oklab, var(--color-success) 15%, transparent);
-  border-color: color-mix(in oklab, var(--color-success) 40%, transparent);
+  color: color-mix(in oklab, var(--color-success) 85%, var(--color-base-content));
+  background: color-mix(in oklab, var(--color-success) 22%, transparent);
+  border-color: color-mix(in oklab, var(--color-success) 65%, transparent);
+  font-weight: 700;
 }
 
 .scoreBadge.mid {
-  color: var(--color-warning);
-  background: color-mix(in oklab, var(--color-warning) 15%, transparent);
-  border-color: color-mix(in oklab, var(--color-warning) 40%, transparent);
+  color: color-mix(in oklab, var(--color-warning) 80%, var(--color-base-content));
+  background: color-mix(in oklab, var(--color-warning) 22%, transparent);
+  border-color: color-mix(in oklab, var(--color-warning) 65%, transparent);
+  font-weight: 700;
 }
 
 .scoreBadge.low {
-  color: var(--color-error);
-  background: color-mix(in oklab, var(--color-error) 15%, transparent);
-  border-color: color-mix(in oklab, var(--color-error) 40%, transparent);
+  color: color-mix(in oklab, var(--color-error) 85%, var(--color-base-content));
+  background: color-mix(in oklab, var(--color-error) 22%, transparent);
+  border-color: color-mix(in oklab, var(--color-error) 65%, transparent);
+  font-weight: 700;
 }
 
 /* ============================================================
    Post type badge color variants
    ============================================================ */
 .postTypeBadge.commendation {
-  color: var(--color-success);
-  border-color: var(--color-success);
+  color: color-mix(in oklab, var(--color-success) 85%, var(--color-base-content));
+  border-color: color-mix(in oklab, var(--color-success) 80%, transparent);
+  background: color-mix(in oklab, var(--color-success) 14%, transparent);
+  font-weight: 600;
 }
 
 .postTypeBadge.infraction {
-  color: var(--color-error);
-  border-color: var(--color-error);
+  color: color-mix(in oklab, var(--color-error) 85%, var(--color-base-content));
+  border-color: color-mix(in oklab, var(--color-error) 80%, transparent);
+  background: color-mix(in oklab, var(--color-error) 14%, transparent);
+  font-weight: 600;
 }
 
 /* ============================================================

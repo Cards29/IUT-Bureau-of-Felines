@@ -120,12 +120,34 @@ export default function CatProfile() {
               )}
             </div>
             {isAdmin && (
+              <div className="flex items-center gap-2">
+                <button
+                  className="btn btn-primary btn-sm font-[Special_Elite] lg:hidden"
+                  onClick={() => {
+                    if (!user) return openLogin();
+                    setOpen(true);
+                  }}
+                >
+                  + File Report
+                </button>
+                <button
+                  className="btn btn-error btn-sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={deleting}
+                >
+                  Delete Record
+                </button>
+              </div>
+            )}
+            {!isAdmin && (
               <button
-                className="btn btn-error btn-sm"
-                onClick={() => setShowDeleteConfirm(true)}
-                disabled={deleting}
+                className="btn btn-primary btn-sm font-[Special_Elite] lg:hidden"
+                onClick={() => {
+                  if (!user) return openLogin();
+                  setOpen(true);
+                }}
               >
-                Delete Record
+                + File Report
               </button>
             )}
           </div>
