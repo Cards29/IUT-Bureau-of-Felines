@@ -13,15 +13,9 @@
     "daisyui": "^5.5.19",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-<<<<<<< Updated upstream
+    "react-hot-toast": "^2.6.0",
     "react-router-dom": "^6.26.1",
     "tailwindcss": "^4.2.1"
-||||||| Stash base
-    "react-router-dom": "^6.26.1"
-=======
-    "react-hot-toast": "^2.6.0",
-    "react-router-dom": "^6.26.1"
->>>>>>> Stashed changes
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
