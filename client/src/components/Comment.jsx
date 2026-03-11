@@ -1,20 +1,22 @@
 import React from "react";
 import { useAuth } from "../state/auth";
 import { apiFetch } from "../utils/api";
+import ConfirmModal from "./ConfirmModal";
 
 export default function Comment({ comment, postId, onDelete, onUpdate }) {
   const { user, isAdmin } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
   const [editBody, setEditBody] = React.useState(comment.body);
   const [submitting, setSubmitting] = React.useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
   const isAuthor = user && comment.authorId?._id === user.id;
   const canDelete = isAuthor || isAdmin;
 
   async function handleDelete() {
-    if (!window.confirm("Delete this comment?")) return;
     setSubmitting(true);
     try {
       await apiFetch(`/posts/${postId}/comments/${comment._id}`, { method: "DELETE" });
+      setShowDeleteConfirm(false);
       if (onDelete) onDelete(comment._id);
     } catch (e) {
       alert(`Error: ${e.message}`);
@@ -82,7 +84,7 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
             {canDelete && (
               <button 
                 className="commentBtn danger" 
-                onClick={handleDelete} 
+                onClick={() => setShowDeleteConfirm(true)} 
                 disabled={submitting}
                 title={isAdmin && !isAuthor ? "Delete as admin" : "Delete"}
               >
@@ -128,6 +130,18 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
       {comment.updatedAt && new Date(comment.updatedAt) > new Date(comment.createdAt) && (
         <div className="commentEdited">edited {formatTime(comment.updatedAt)}</div>
       )}
+
+      <ConfirmModal
+        open={showDeleteConfirm}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger={true}
+        isLoading={submitting}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }
