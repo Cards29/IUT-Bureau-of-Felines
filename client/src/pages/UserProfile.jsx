@@ -53,19 +53,16 @@ export default function UserProfile() {
   if (userLoading) {
     return (
       <div style={{ maxWidth: 700 }}>
-        <div className="skeletonCard" style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div className="skeleton" style={{ width: 64, height: 64, borderRadius: "50%", flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-              <div className="skeletonLine" style={{ width: "40%", height: 18, marginBottom: 10 }} />
-              <div className="skeletonLine" style={{ width: "25%", height: 11 }} />
+        <div className="card bg-base-100 border border-base-300 p-4 mb-4">
+          <div className="flex items-center gap-4">
+            <div className="skeleton w-16 h-16 rounded-full flex-shrink-0" />
+            <div className="flex-1">
+              <div className="skeleton h-[18px] w-[40%] mb-2.5 rounded" />
+              <div className="skeleton h-[11px] w-[25%] rounded" />
             </div>
           </div>
         </div>
-        <div className="skeletonCard">
-          <div className="skeletonLine" style={{ width: "30%", height: 10, marginBottom: 10 }} />
-          <div className="skeletonLine" style={{ width: "70%", height: 18 }} />
-        </div>
+        <div className="skeleton h-32 w-full mb-3" />
       </div>
     );
   }
@@ -73,8 +70,8 @@ export default function UserProfile() {
   if (!user) {
     return (
       <div style={{ maxWidth: 700 }}>
-        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--muted)" }}>
-          <div style={{ fontFamily: "Special Elite, serif", fontSize: 16 }}>Personnel record not found.</div>
+        <div className="card bg-base-100 border border-base-300 p-4 text-center text-base-content/60 text-sm">
+          <div className="font-[Special_Elite] text-base">Personnel record not found.</div>
         </div>
       </div>
     );
@@ -83,24 +80,24 @@ export default function UserProfile() {
   return (
     <div style={{ maxWidth: 700 }}>
       {/* User header */}
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+      <div className="card bg-base-100 border border-base-300 p-4 mb-4">
+        <div className="flex items-center gap-4">
           {user.avatarUrl ? (
             <img
               src={user.avatarUrl}
               alt={user.username}
-              style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--border)", flexShrink: 0 }}
+              className="w-16 h-16 rounded-full border border-base-300 object-cover flex-shrink-0"
             />
           ) : (
-            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--border)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, color: "var(--muted)" }}>
+            <div className="w-16 h-16 rounded-full bg-base-300 flex-shrink-0 flex items-center justify-center text-[28px] text-base-content/40">
               &#128101;
             </div>
           )}
           <div>
-            <div style={{ fontFamily: "Special Elite, serif", fontSize: 20, letterSpacing: "0.02em", marginBottom: 4 }}>
+            <div className="font-[Special_Elite] text-2xl">
               {user.username}
             </div>
-            <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            <div className="text-sm text-base-content/60 tracking-widest uppercase mt-0.5">
               Enrolled {joinedLabel(user.createdAt)}
             </div>
           </div>
@@ -108,12 +105,12 @@ export default function UserProfile() {
       </div>
 
       {/* Section label */}
-      <div style={{ marginBottom: 10, fontFamily: "Special Elite, serif", fontSize: 14, letterSpacing: "0.04em", color: "var(--muted)", textTransform: "uppercase" }}>
+      <div className="mb-2.5 font-[Special_Elite] text-[13px] tracking-widest text-base-content/60 uppercase">
         Filed Reports
       </div>
 
       {/* Posts feed */}
-      <div className="postFeed" style={{ maxWidth: "100%" }}>
+      <div className="max-w-[700px]">
         {posts.map(p => (
           <PostCard key={p._id} post={p} onVoted={(score) => {
             setPosts(prev => prev.map(x => x._id === p._id ? { ...x, voteScore: score } : x));
@@ -121,22 +118,19 @@ export default function UserProfile() {
         ))}
 
         {loading ? (
-          <div className="skeletonCard">
-            <div className="skeletonLine" style={{ width: "40%", height: 10, marginBottom: 10 }} />
-            <div className="skeletonLine" style={{ width: "70%", height: 18 }} />
-          </div>
+          <div className="skeleton h-32 w-full mb-3" />
         ) : null}
 
         {!loading && posts.length === 0 ? (
-          <div className="card" style={{ textAlign: "center", padding: "24px 16px", color: "var(--muted)" }}>
-            <div style={{ fontFamily: "Special Elite, serif", fontSize: 16, marginBottom: 4 }}>No reports on file.</div>
-            <div style={{ fontSize: 13 }}>This user has not filed any reports yet.</div>
+          <div className="card bg-base-100 border border-base-300 p-4 text-center text-base-content/60 text-sm">
+            <div className="font-[Special_Elite] text-base mb-1">No reports on file.</div>
+            <div>This user has not filed any reports yet.</div>
           </div>
         ) : null}
 
         <InfiniteSentinel disabled={!hasMore || loading} onVisible={() => loadMore(false)} />
         {!hasMore && posts.length > 0 ? (
-          <div className="muted" style={{ textAlign: "center", padding: "12px 0", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+          <div className="text-center py-3 text-xs text-base-content/60 tracking-widest uppercase">
             — End of Records —
           </div>
         ) : null}

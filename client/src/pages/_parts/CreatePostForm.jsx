@@ -149,48 +149,46 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
     }
   }
 
-  const labelStyle = { marginBottom: 6, fontSize: 12, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--muted)" };
-
   return (
     <div>
       {!fixedCatId ? (
         <>
-          <div style={labelStyle}>Cat</div>
-          <select className="input" value={catId} onChange={e => setCatId(e.target.value)} disabled={loadingCats}>
+          <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Cat</div>
+          <select className="input input-bordered w-full" value={catId} onChange={e => setCatId(e.target.value)} disabled={loadingCats}>
             <option value="">{loadingCats ? "Loading..." : "Select a cat"}</option>
             {cats.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
           </select>
-          <div style={{ height: 12 }} />
+          <div className="h-3" />
         </>
       ) : null}
 
-      <div style={labelStyle}>Report Type</div>
-      <div className="row" style={{ gap: 8, marginBottom: 14 }}>
+      <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Report Type</div>
+      <div className="flex items-center gap-2 mb-3.5">
         <button
           type="button"
-          className={`btn${type === "commendation" ? " primary" : ""}`}
+          className={`btn btn-sm${type === "commendation" ? " btn-success" : ""}`}
           onClick={() => setType("commendation")}
         >
           Commendation
         </button>
         <button
           type="button"
-          className={`btn${type === "infraction" ? " primary" : ""}`}
+          className={`btn btn-sm${type === "infraction" ? " btn-error" : ""}`}
           onClick={() => setType("infraction")}
         >
           Infraction
         </button>
       </div>
 
-      <div style={labelStyle}>Title *</div>
-      <input className="input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Brief subject line..." />
-      <div style={{ height: 12 }} />
-      <div style={labelStyle}>Details</div>
-      <textarea className="input" value={body} onChange={e => setBody(e.target.value)} placeholder="Describe the incident in full..." />
-      <div style={{ height: 12 }} />
+      <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Title *</div>
+      <input className="input input-bordered w-full" value={title} onChange={e => setTitle(e.target.value)} placeholder="Brief subject line..." />
+      <div className="h-3" />
+      <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Details</div>
+      <textarea className="textarea textarea-bordered w-full" value={body} onChange={e => setBody(e.target.value)} placeholder="Describe the incident in full..." />
+      <div className="h-3" />
 
-      <div style={labelStyle}>Images (max 5)</div>
-      <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>Max 5MB per image. Cannot be combined with a video.</div>
+      <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Images (max 5)</div>
+      <div className="text-base-content/60 text-sm mb-2">Max 5MB per image. Cannot be combined with a video.</div>
       <input
         type="file"
         multiple
@@ -199,17 +197,13 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
         disabled={images.length >= 5 || video !== null}
       />
       {previews.length > 0 && (
-        <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+        <div className="flex gap-2 mt-3 flex-wrap">
           {previews.map((url, i) => (
-            <div key={url} style={{ position: "relative" }}>
-              <img src={url} alt="preview" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 3, border: "1px solid var(--border)" }} />
+            <div key={url} className="relative">
+              <img src={url} alt="preview" className="w-[60px] h-[60px] object-cover rounded-[3px] border border-base-300" />
               <button
                 onClick={() => removeImage(i)}
-                style={{
-                  position: "absolute", top: -6, right: -6, background: "var(--danger)", color: "white",
-                  border: "none", borderRadius: "50%", width: 18, height: 18, cursor: "pointer",
-                  fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center",
-                }}
+                className="absolute -top-1.5 -right-1.5 bg-error text-white border-none rounded-full w-[18px] h-[18px] cursor-pointer text-xs flex items-center justify-center"
               >
                 &times;
               </button>
@@ -218,9 +212,9 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
         </div>
       )}
 
-      <div style={{ height: 14 }} />
-      <div style={labelStyle}>Video (max 30s)</div>
-      <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>Max 50MB. Allowed formats: mp4, webm, mov. Cannot be combined with images.</div>
+      <div className="h-3.5" />
+      <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Video (max 30s)</div>
+      <div className="text-base-content/60 text-sm mb-2">Max 50MB. Allowed formats: mp4, webm, mov. Cannot be combined with images.</div>
       {!videoPreview ? (
         <input
           type="file"
@@ -229,30 +223,26 @@ export default function CreatePostForm({ onCreated, fixedCatId }) {
           disabled={images.length > 0}
         />
       ) : (
-        <div style={{ position: "relative", display: "inline-block" }}>
+        <div className="relative inline-block">
           <video
             src={videoPreview}
             muted
-            style={{ width: 160, borderRadius: 3, display: "block", border: "1px solid var(--border)" }}
+            className="w-[160px] rounded-[3px] block border border-base-300"
           />
           <button
             onClick={removeVideo}
-            style={{
-              position: "absolute", top: -6, right: -6, background: "var(--danger)", color: "white",
-              border: "none", borderRadius: "50%", width: 18, height: 18, cursor: "pointer",
-              fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center",
-            }}
+            className="absolute -top-1.5 -right-1.5 bg-error text-white border-none rounded-full w-[18px] h-[18px] cursor-pointer text-xs flex items-center justify-center"
           >
             &times;
           </button>
         </div>
       )}
 
-      <div style={{ height: 16 }} />
-      <button className="btn primary" disabled={saving} onClick={submit}>
+      <div className="h-4" />
+      <button className="btn btn-primary" disabled={saving} onClick={submit}>
         {saving ? "Filing... (this may take a moment)" : "File Report"}
       </button>
-      {error && <div style={{ color: "var(--danger)", marginTop: 10, fontSize: 13 }}>{error}</div>}
+      {error && <div className="text-error text-xs mt-2.5">{error}</div>}
     </div>
   );
 }

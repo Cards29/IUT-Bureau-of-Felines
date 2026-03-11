@@ -70,28 +70,19 @@ export default function PostDetail() {
 
   if (postLoading) {
     return (
-      <div style={{ maxWidth: 700 }}>
-        <div className="skeletonCard" style={{ marginBottom: 16 }}>
-          <div className="skeletonLine" style={{ width: "30%", height: 10, marginBottom: 10 }} />
-          <div className="skeletonLine" style={{ width: "65%", height: 20, marginBottom: 8 }} />
-          <div className="skeletonLine" style={{ width: "90%", height: 11, marginBottom: 6 }} />
-          <div className="skeletonLine" style={{ width: "75%", height: 11 }} />
-        </div>
-        <div className="skeletonCard">
-          <div className="skeletonLine" style={{ width: "20%", height: 10, marginBottom: 12 }} />
-          <div className="skeletonLine" style={{ width: "100%", height: 14, marginBottom: 8 }} />
-          <div className="skeletonLine" style={{ width: "85%", height: 14 }} />
-        </div>
+      <div className="max-w-[700px] mx-auto">
+        <div className="skeleton h-32 w-full mb-4 rounded-[3px]" />
+        <div className="skeleton h-32 w-full rounded-[3px]" />
       </div>
     );
   }
 
   if (loadError) {
     return (
-      <div style={{ maxWidth: 700 }}>
-        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--danger)" }}>
-          <div style={{ fontFamily: "Special Elite, serif", fontSize: 16, marginBottom: 6 }}>Record Unavailable</div>
-          <div style={{ fontSize: 13, color: "var(--muted)" }}>{loadError}</div>
+      <div className="max-w-[700px] mx-auto">
+        <div className="card bg-base-100 border border-base-300 p-4 text-center">
+          <div className="font-[Special_Elite] text-base text-error mb-1.5">Record Unavailable</div>
+          <div className="text-sm text-base-content/60">{loadError}</div>
         </div>
       </div>
     );
@@ -99,9 +90,9 @@ export default function PostDetail() {
 
   if (!post) {
     return (
-      <div style={{ maxWidth: 700 }}>
-        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--muted)" }}>
-          <div style={{ fontFamily: "Special Elite, serif", fontSize: 16 }}>No record found.</div>
+      <div className="max-w-[700px] mx-auto">
+        <div className="card bg-base-100 border border-base-300 p-4 text-center text-base-content/60">
+          <div className="font-[Special_Elite] text-base">No record found.</div>
         </div>
       </div>
     );
@@ -114,43 +105,33 @@ export default function PostDetail() {
     : `${post.commentCount} Remarks on File`;
 
   return (
-    <div style={{ maxWidth: 700 }}>
-      <div className="postFeed" style={{ maxWidth: "100%", marginBottom: 0 }}>
+    <div className="max-w-[700px] mx-auto">
+      <div className="max-w-[700px] mb-0">
         <PostCard post={post} onVoted={(score) => setPost(prev => ({ ...prev, voteScore: score }))} />
       </div>
 
-      <div className="card" style={{ marginTop: 16 }}>
+      <div className="card bg-base-100 border border-base-300 p-4 mt-4">
         {/* Comment count header */}
-        <div style={{
-          fontFamily: "Special Elite, serif",
-          fontSize: 14,
-          letterSpacing: "0.04em",
-          marginBottom: 14,
-          paddingBottom: 10,
-          borderBottom: "1px solid var(--border)",
-          color: "var(--muted)",
-          textTransform: "uppercase",
-        }}>
+        <div className="font-[Special_Elite] text-[13px] tracking-widest mb-3.5 pb-2.5 border-b border-base-300 text-base-content/60 uppercase">
           {commentCountLabel}
         </div>
 
         {/* Add comment */}
         {user ? (
-          <div style={{ marginBottom: 16 }}>
-            <div className="muted" style={{ fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>
+          <div className="mb-4">
+            <div className="text-base-content/60 text-[11px] tracking-widest uppercase mb-1.5">
               Your Remark
             </div>
             <textarea
-              className="input"
+              className="textarea textarea-bordered w-full resize-y mb-2.5"
               value={body}
               onChange={e => setBody(e.target.value)}
               placeholder="State your observations for the record..."
               rows={3}
-              style={{ background: "var(--bg)", display: "block", marginBottom: 10, width: "100%", resize: "vertical" }}
             />
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <div className="flex justify-end">
               <button
-                className="btn primary"
+                className="btn btn-primary"
                 disabled={submitting || !body.trim()}
                 onClick={addComment}
               >
@@ -159,19 +140,10 @@ export default function PostDetail() {
             </div>
           </div>
         ) : (
-          <div style={{
-            background: "var(--bg)",
-            border: "1px solid var(--border)",
-            borderRadius: 3,
-            padding: "12px 16px",
-            marginBottom: 14,
-            fontSize: 13,
-            textAlign: "center",
-            color: "var(--muted)",
-          }}>
+          <div className="bg-base-200 border border-base-300 rounded-[3px] px-4 py-3 mb-3.5 text-sm text-center text-base-content/60">
             <button
               onClick={openLogin}
-              style={{ background: "none", border: "none", color: "var(--accent)", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: "underline", padding: 0 }}
+              className="btn btn-link text-primary p-0"
             >
               Log in
             </button>
@@ -183,18 +155,18 @@ export default function PostDetail() {
         {commentsLoading ? (
           <div>
             {[1, 2].map(i => (
-              <div key={i} style={{ padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
-                <div className="skeletonLine" style={{ width: "25%", height: 10, marginBottom: 8 }} />
-                <div className="skeletonLine" style={{ width: "80%", height: 13 }} />
+              <div key={i} className="py-3 border-b border-base-300">
+                <div className="skeleton h-2.5 w-[25%] mb-2 rounded" />
+                <div className="skeleton h-3.5 w-4/5 rounded" />
               </div>
             ))}
           </div>
         ) : comments.length === 0 ? (
-          <div style={{ padding: "20px 0", textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
+          <div className="py-5 text-center text-base-content/60 text-sm">
             No remarks on file. Be the first to comment.
           </div>
         ) : (
-          <div className="commentsList">
+          <div className="flex flex-col gap-2">
             {comments.map(c => (
               <Comment
                 key={c._id}

@@ -56,36 +56,41 @@ export default function PostCard({ post, onVoted, onDelete }) {
   };
 
   const isCommendation = post.type === "commendation";
+  const cardClass = `card bg-base-100 border border-base-300 shadow-sm overflow-hidden mb-3${isCommendation ? " border-l-4 border-l-success" : " border-l-4 border-l-error"}`;
 
   return (
     <>
-      <div className={`postCard ${post.type || ""}`}>
+      <div className={cardClass}>
         {/* Header: meta + delete */}
-        <div className="postCardHeader">
-          <div className="postCardMeta">
+        <div className="flex items-center justify-between px-4 pt-3 pb-2">
+          <div className="flex flex-wrap gap-1 text-xs text-base-content/60">
             {post.authorId?.avatarUrl ? (
-              <img className="avatar" src={post.authorId.avatarUrl} alt="avatar" style={{ width: 26, height: 26 }} />
+              <div className="avatar">
+                <div className="w-[26px] rounded-full">
+                  <img src={post.authorId.avatarUrl} alt="avatar" />
+                </div>
+              </div>
             ) : (
-              <div className="avatar" style={{ width: 26, height: 26 }} />
+              <div className="w-[26px] h-[26px] rounded-full bg-base-300" />
             )}
             <Link to={`/users/${post.authorId?._id}`}>
               {post.authorId?.username || "unknown"}
             </Link>
-            <span style={{ color: "var(--border-strong)" }}>&#9642;</span>
+            <span>&#9642;</span>
             <Link to={`/cats/${post.catId?._id}`}>
               {post.catId?.name || "cat"}
             </Link>
-            <span style={{ color: "var(--border-strong)" }}>&#9642;</span>
+            <span>&#9642;</span>
             <span title={new Date(post.createdAt).toLocaleString()}>{timeAgo(post.createdAt)}</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span className={`postTypeBadge ${post.type || ""}`}>
+          <div className="flex items-center gap-2">
+            <span className={`postTypeBadge ${post.type || ""} badge badge-sm badge-outline`}>
               {isCommendation ? "Commendation" : "Infraction"}
             </span>
             {canDelete && onDelete ? (
               <button
-                className="btn small"
-                style={{ color: "var(--danger)", borderColor: "var(--danger)", padding: "2px 8px", fontSize: 11 }}
+                className="btn btn-sm"
+                style={{ color: "var(--color-error)", borderColor: "var(--color-error)", padding: "2px 8px", fontSize: 11 }}
                 onClick={() => setDeleteOpen(true)}
               >
                 Delete
@@ -95,13 +100,13 @@ export default function PostCard({ post, onVoted, onDelete }) {
         </div>
 
         {/* Title */}
-        <div className="postCardTitle">
+        <div className="font-[Special_Elite] text-[18px] px-4 pb-1.5">
           <Link to={`/posts/${post._id}`}>{post.title}</Link>
         </div>
 
         {/* Body */}
         {post.body ? (
-          <div className="postCardBody">{post.body}</div>
+          <div className="text-sm px-4 pb-2.5 whitespace-pre-wrap">{post.body}</div>
         ) : null}
 
         {/* Media */}
@@ -135,16 +140,16 @@ export default function PostCard({ post, onVoted, onDelete }) {
         ) : null}
 
         {/* Action bar */}
-        <div className="postCardActions">
-          <div className="postCardActionsLeft">
+        <div className="flex items-center justify-between border-t border-base-300 px-4 pt-2 pb-3">
+          <div className="flex items-center gap-2">
             <button
-              className="commentCountBtn"
+              className="btn btn-ghost btn-sm gap-1"
               onClick={() => setCommentsOpen(true)}
             >
               &#128172; {post.commentCount || 0} {post.commentCount === 1 ? "comment" : "comments"}
             </button>
           </div>
-          <div className="postCardActionsRight">
+          <div className="flex items-center gap-2">
             <VoteButtons postId={post._id} postType={post.type} voteScore={post.voteScore} onVoted={onVoted} />
           </div>
         </div>

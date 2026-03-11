@@ -4,14 +4,14 @@ const ThemeContext = React.createContext(null);
 const THEME_KEY = "catbureau_theme";
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = React.useState(() => localStorage.getItem(THEME_KEY) || "light");
+  const [theme, setTheme] = React.useState(() => localStorage.getItem(THEME_KEY) || "nord");
 
   React.useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
-  const toggle = () => setTheme(t => (t === "light" ? "dark" : "light"));
+  const toggle = () => setTheme(t => (t === "nord" ? "abyss" : "nord"));
 
   return (
     <ThemeContext.Provider value={{ theme, toggle }}>

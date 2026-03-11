@@ -65,28 +65,27 @@ export default function CommentsModal({ open, postId, onClose }) {
 
   return (
     <Modal open={open} title={`Comments (${post?.commentCount || 0})`} onClose={onClose}>
-      <div className="commentsModalContent">
+      <div className="flex flex-col max-h-[60vh] gap-3">
         {/* Add Comment Form */}
         {user && (
-          <div className="commentsModalForm">
+          <div className="bg-base-200 rounded-[3px] p-3 border-b border-base-300 flex-shrink-0">
             <textarea
-              className="input"
+              className="textarea textarea-bordered w-full resize-y mb-2"
               value={body}
               onChange={e => setBody(e.target.value)}
               placeholder="Write your remarks here..."
               rows={3}
-              style={{ background: "var(--bg)", display: "block", width: "100%", resize: "vertical", marginBottom: 8 }}
             />
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            <div className="flex justify-end gap-2">
               <button
-                className="btn"
+                className="btn btn-sm"
                 onClick={() => setBody("")}
                 disabled={submitting || !body.trim()}
               >
                 Clear
               </button>
               <button
-                className="btn primary"
+                className="btn btn-primary btn-sm"
                 disabled={submitting || !body.trim()}
                 onClick={addComment}
               >
@@ -97,19 +96,23 @@ export default function CommentsModal({ open, postId, onClose }) {
         )}
 
         {!user && (
-          <div style={{ background: "var(--bg-alt)", padding: 12, borderRadius: 3, marginBottom: 12, fontSize: 13, textAlign: "center", color: "var(--muted)", border: "1px solid var(--border)" }}>
+          <div className="bg-base-200 border border-base-300 rounded-[3px] p-3 text-sm text-center text-base-content/60 flex-shrink-0">
             Log in to leave a remark on the record.
           </div>
         )}
 
         {/* Comments List */}
-        <div className="commentsModalList">
-          {loading && <div style={{ padding: 20, textAlign: "center", color: "var(--muted)" }}>Loading remarks...</div>}
+        <div className="flex-1 overflow-y-auto flex flex-col gap-2">
+          {loading && (
+            <div className="py-5 text-center text-base-content/60 text-sm">Loading remarks...</div>
+          )}
 
-          {error && <div style={{ padding: 12, background: "var(--infraction-bg)", color: "var(--infraction)", borderRadius: 3, fontSize: 13, border: "1px solid var(--infraction-border)" }}>Error: {error}</div>}
+          {error && (
+            <div className="alert alert-error text-sm">{error}</div>
+          )}
 
           {!loading && !error && comments.length === 0 && (
-            <div style={{ padding: 20, textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
+            <div className="py-5 text-center text-base-content/60 text-sm">
               No remarks on file. Be the first to comment.
             </div>
           )}

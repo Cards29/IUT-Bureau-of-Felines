@@ -37,17 +37,17 @@ export default function CreateCatForm({ onCreated }) {
 
   return (
     <div>
-      <div className="muted" style={{ marginBottom: 6, fontSize: 12, letterSpacing: "0.04em", textTransform: "uppercase" }}>Name *</div>
-      <input className="input" value={name} onChange={e => setName(e.target.value)} placeholder="Feline's full name" />
-      <div style={{ height: 12 }} />
-      <div className="muted" style={{ marginBottom: 6, fontSize: 12, letterSpacing: "0.04em", textTransform: "uppercase" }}>Bio</div>
-      <textarea className="input" value={bio} onChange={e => setBio(e.target.value)} placeholder="Brief description of the feline..." />
-      <div style={{ height: 12 }} />
-      <div className="muted" style={{ marginBottom: 6, fontSize: 12, letterSpacing: "0.04em", textTransform: "uppercase" }}>Photo</div>
+      <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Name *</div>
+      <input className="input input-bordered w-full" value={name} onChange={e => setName(e.target.value)} placeholder="Feline's full name" />
+      <div className="h-3" />
+      <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Bio</div>
+      <textarea className="textarea textarea-bordered w-full" value={bio} onChange={e => setBio(e.target.value)} placeholder="Brief description of the feline..." />
+      <div className="h-3" />
+      <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Photo</div>
       <input type="file" accept="image/*" onChange={e => setPhoto(e.target.files?.[0] || null)} />
-      <div style={{ height: 16 }} />
-      {error && <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 10 }}>{error}</div>}
-      <button className="btn primary" disabled={saving} onClick={submit}>
+      <div className="h-4" />
+      {error && <div className="text-error text-xs mt-1 mb-2.5">{error}</div>}
+      <button className="btn btn-primary" disabled={saving} onClick={submit}>
         {saving ? "Submitting..." : "Submit Request"}
       </button>
     </div>

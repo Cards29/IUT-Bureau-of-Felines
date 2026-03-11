@@ -45,11 +45,7 @@ export default function VoteButtons({ postId, postType, voteScore, onVoted }) {
   const isCommendation = postType === "commendation";
 
   if (loading) {
-    return (
-      <div style={{ width: 60, height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div className="skeleton" style={{ width: 48, height: 14, borderRadius: 2 }} />
-      </div>
-    );
+    return <div className="skeleton h-8 w-16 rounded" />;
   }
 
   if (myContribution !== null) {
@@ -62,7 +58,7 @@ export default function VoteButtons({ postId, postType, voteScore, onVoted }) {
 
   return (
     <>
-      <button className="btn small" onClick={handleVoteClick}>
+      <button className="btn btn-sm" onClick={handleVoteClick}>
         Vote
       </button>
       <VoteModal

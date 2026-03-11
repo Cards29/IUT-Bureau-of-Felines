@@ -14,7 +14,7 @@ function ScoreBadge({ score }) {
   if (typeof score !== "number") return null;
   const tier = score >= 12 ? "high" : score >= 8 ? "mid" : "low";
   return (
-    <span className={`scoreBadge ${tier}`} style={{ fontSize: 17 }}>
+    <span className={`scoreBadge badge font-[Special_Elite] text-[15px] px-2.5 ${tier}`}>
       Merit Score: {score.toFixed(1)}
     </span>
   );
@@ -78,44 +78,50 @@ export default function CatProfile() {
   if (!cat) {
     return (
       <div style={{ maxWidth: 700 }}>
-        <div className="catProfileCard">
-          <div className="catProfilePhotoWrap" style={{ background: "var(--border)" }} />
-          <div className="catProfileBody">
-            <div className="skeletonLine" style={{ width: "35%", height: 24, marginBottom: 10 }} />
-            <div className="skeletonLine" style={{ width: "70%", height: 13, marginBottom: 6 }} />
-            <div className="skeletonLine" style={{ width: "50%", height: 13 }} />
+        <div className="card bg-base-100 border border-base-300 overflow-hidden">
+          <div className="w-full h-[280px] skeleton" />
+          <div className="p-5">
+            <div className="skeleton h-4 rounded w-[35%] mb-2.5" />
+            <div className="skeleton h-3 rounded w-[70%] mb-1.5" />
+            <div className="skeleton h-3 rounded w-[50%]" />
           </div>
         </div>
       </div>
     );
   }
 
+  const statusBadgeClass = cat.status === "approved"
+    ? "badge badge-sm badge-outline badge-success"
+    : cat.status === "pending"
+    ? "badge badge-sm badge-outline badge-warning"
+    : "badge badge-sm badge-outline badge-error";
+
   return (
     <div style={{ maxWidth: 700 }}>
       {/* Cat profile header card */}
-      <div className="catProfileCard">
+      <div className="card bg-base-100 border border-base-300 overflow-hidden">
         {cat.photoUrl ? (
-          <div className="catProfilePhotoWrap">
-            <img className="catProfilePhoto" src={cat.photoUrl} alt={cat.name} />
+          <div className="w-full h-[280px] overflow-hidden">
+            <img className="w-full h-full object-cover" src={cat.photoUrl} alt={cat.name} />
           </div>
         ) : (
-          <div className="catProfilePhotoWrap" style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: 64, color: "var(--muted)" }}>
+          <div className="w-full h-[280px] flex items-center justify-center text-[64px] text-base-content/40">
             &#128049;
           </div>
         )}
-        <div className="catProfileBody">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+        <div className="p-5">
+          <div className="flex justify-between items-start gap-3 flex-wrap">
             <div>
-              <div className="catProfileName">{cat.name}</div>
+              <div className="font-[Special_Elite] text-2xl mb-1">{cat.name}</div>
               {isAdmin && cat.status !== "approved" && (
-                <span className={`statusBadge ${cat.status}`} style={{ marginBottom: 8, display: "inline-block" }}>
+                <span className={`${statusBadgeClass} mb-2 inline-block`}>
                   {cat.status}
                 </span>
               )}
             </div>
             {isAdmin && (
               <button
-                className="btn danger small"
+                className="btn btn-error btn-sm"
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={deleting}
               >
@@ -124,14 +130,16 @@ export default function CatProfile() {
             )}
           </div>
 
-          {cat.bio && <div className="catProfileBio">{cat.bio}</div>}
+          {cat.bio && <div className="text-sm text-base-content/60 leading-relaxed">{cat.bio}</div>}
 
           {cat.status === "approved" && typeof cat.score === "number" && (
-            <ScoreBadge score={cat.score} />
+            <div className="mt-2">
+              <ScoreBadge score={cat.score} />
+            </div>
           )}
 
           {isAdmin && cat.status === "rejected" && cat.rejectionReason && (
-            <div className="rejectionCallout" style={{ marginTop: 10 }}>
+            <div className="alert alert-error text-sm mt-3">
               <strong>Rejection reason:</strong> {cat.rejectionReason}
             </div>
           )}
@@ -139,35 +147,31 @@ export default function CatProfile() {
       </div>
 
       {/* Post feed for this cat */}
-      <div style={{ marginTop: 4, marginBottom: 8, fontFamily: "Special Elite, serif", fontSize: 14, letterSpacing: "0.04em", color: "var(--muted)", textTransform: "uppercase" }}>
+      <div className="mt-1 mb-2 font-[Special_Elite] text-[13px] tracking-widest text-base-content/60 uppercase">
         Filed Reports
       </div>
 
-      <div className="postFeed" style={{ maxWidth: "100%" }}>
+      <div className="max-w-[700px]">
         {posts.map(p => (
           <PostCard key={p._id} post={p} onVoted={(score) => {
             setPosts(prev => prev.map(x => x._id === p._id ? { ...x, voteScore: score } : x));
-          }} onDelete={(id) => setPosts(prev => prev.filter(x => x._id !== id))} />
+          }} onDelete={(postId) => setPosts(prev => prev.filter(x => x._id !== postId))} />
         ))}
 
         {loading ? (
-          <div className="skeletonCard">
-            <div className="skeletonLine" style={{ width: "40%", height: 10, marginBottom: 10 }} />
-            <div className="skeletonLine" style={{ width: "70%", height: 18, marginBottom: 12 }} />
-            <div className="skeletonLine" style={{ width: "90%", height: 10 }} />
-          </div>
+          <div className="skeleton h-32 w-full mb-3" />
         ) : null}
 
         {!loading && posts.length === 0 ? (
-          <div className="card" style={{ textAlign: "center", padding: "24px 16px", color: "var(--muted)" }}>
-            <div style={{ fontFamily: "Special Elite, serif", fontSize: 16, marginBottom: 4 }}>No reports on file.</div>
-            <div style={{ fontSize: 13 }}>File the first commendation or infraction for {cat.name}.</div>
+          <div className="card bg-base-100 border border-base-300 p-4 text-center text-base-content/60 text-sm">
+            <div className="font-[Special_Elite] text-base mb-1">No reports on file.</div>
+            <div>File the first commendation or infraction for {cat.name}.</div>
           </div>
         ) : null}
 
         <InfiniteSentinel disabled={!hasMore || loading} onVisible={() => loadMore(false)} />
         {!hasMore && posts.length > 0 ? (
-          <div className="muted" style={{ textAlign: "center", padding: "12px 0", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+          <div className="text-center py-3 text-xs text-base-content/60 tracking-widest uppercase">
             — End of Records —
           </div>
         ) : null}

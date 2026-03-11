@@ -58,25 +58,24 @@ export default function Admin() {
     }
   }
 
-  if (authLoading) return <div className="card">Loading...</div>;
+  if (authLoading) return <div className="card bg-base-100 border border-base-300 p-4">Loading...</div>;
   if (!isAdmin) return <Navigate to="/newsfeed" replace />;
 
   return (
     <div style={{ maxWidth: 760 }}>
-      <div className="card">
-        <div style={{ fontFamily: "Special Elite, serif", fontSize: 20, letterSpacing: "0.04em" }}>
+      <div className="card bg-base-100 border border-base-300 p-4 mb-3">
+        <div className="font-[Special_Elite] text-xl tracking-wide">
           Administrative Panel — Cat Moderation
         </div>
       </div>
 
-      <div className="card">
-        <div className="row" style={{ gap: 8 }}>
+      <div className="card bg-base-100 border border-base-300 p-4 mb-3">
+        <div className="flex items-center gap-2">
           {TABS.map(t => (
             <button
               key={t}
-              className={`btn${tab === t ? " primary" : ""}`}
+              className={`btn btn-sm capitalize tracking-wide${tab === t ? " btn-primary" : ""}`}
               onClick={() => setTab(t)}
-              style={{ textTransform: "capitalize", letterSpacing: "0.03em" }}
             >
               {t}
             </button>
@@ -85,13 +84,13 @@ export default function Admin() {
       </div>
 
       {loading && (
-        <div className="skeletonCard">
+        <div className="card bg-base-100 border border-base-300 p-4 mb-3">
           {[1, 2, 3].map(i => (
-            <div key={i} style={{ display: "flex", gap: 12, marginBottom: 14 }}>
-              <div className="skeleton" style={{ width: 56, height: 56, borderRadius: 3, flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div className="skeletonLine" style={{ width: "35%", height: 14, marginBottom: 8 }} />
-                <div className="skeletonLine" style={{ width: "65%", height: 11 }} />
+            <div key={i} className="flex gap-3 mb-3.5">
+              <div className="skeleton w-14 h-14 rounded-[3px] flex-shrink-0" />
+              <div className="flex-1">
+                <div className="skeleton h-3.5 w-[35%] mb-2 rounded" />
+                <div className="skeleton h-[11px] w-[65%] rounded" />
               </div>
             </div>
           ))}
@@ -99,84 +98,82 @@ export default function Admin() {
       )}
 
       {!loading && items.length === 0 && (
-        <div className="card" style={{ textAlign: "center", padding: "24px 16px", color: "var(--muted)" }}>
-          <div style={{ fontFamily: "Special Elite, serif", fontSize: 16, marginBottom: 4 }}>No {tab} cats on record.</div>
+        <div className="card bg-base-100 border border-base-300 p-4 text-center text-base-content/60 text-sm">
+          <div className="font-[Special_Elite] text-base mb-1">No {tab} cats on record.</div>
         </div>
       )}
 
       {items.map(cat => (
-        <div key={cat._id} className="card">
-          <div className="row" style={{ alignItems: "flex-start", gap: 14 }}>
+        <div key={cat._id} className="card bg-base-100 border border-base-300 p-4 mb-3">
+          <div className="flex items-start gap-3.5">
             {cat.photoUrl
-              ? <img className="thumb" src={cat.photoUrl} alt="cat" style={{ width: 64, height: 64 }} />
-              : <div className="thumb" style={{ width: 64, height: 64, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, color: "var(--muted)" }}>&#128049;</div>}
+              ? <img className="w-14 h-14 rounded object-cover border border-base-300 flex-shrink-0" src={cat.photoUrl} alt="cat" />
+              : <div className="w-14 h-14 rounded flex items-center justify-center text-[28px] text-base-content/40 border border-base-300 flex-shrink-0">&#128049;</div>}
 
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "Special Elite, serif", fontSize: 16 }}>
+            <div className="flex-1">
+              <div className="font-[Special_Elite] text-base">
                 <Link to={`/cats/${cat._id}`}>{cat.name}</Link>
               </div>
-              {cat.bio && <div className="muted" style={{ fontSize: 13, marginTop: 2 }}>{cat.bio}</div>}
+              {cat.bio && <div className="text-base-content/60 text-[13px] mt-0.5">{cat.bio}</div>}
               {cat.createdBy && (
-                <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+                <div className="text-base-content/60 text-xs mt-0.5">
                   Submitted by: {cat.createdBy.displayName || cat.createdBy.username}
                 </div>
               )}
               {cat.rejectionReason && (
-                <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+                <div className="text-base-content/60 text-xs mt-0.5">
                   Rejection reason: {cat.rejectionReason}
                 </div>
               )}
 
               {tab === "pending" && (
-                <div style={{ marginTop: 10 }}>
-                  <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-                    <button className="btn primary small" onClick={() => approve(cat._id)}>
+                <div className="mt-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button className="btn btn-primary btn-sm" onClick={() => approve(cat._id)}>
                       Approve
                     </button>
                     <input
-                      className="input"
-                      style={{ flex: 1, minWidth: 160 }}
+                      className="input input-bordered flex-1 min-w-[160px]"
                       placeholder="Rejection reason (required to reject)..."
                       value={reasons[cat._id] || ""}
                       onChange={e => setReasons(r => ({ ...r, [cat._id]: e.target.value }))}
                     />
-                    <button className="btn danger small" onClick={() => reject(cat._id)}>
+                    <button className="btn btn-error btn-sm" onClick={() => reject(cat._id)}>
                       Reject
                     </button>
                   </div>
                   {errors[cat._id] && (
-                    <div style={{ color: "var(--danger)", fontSize: 12, marginTop: 4 }}>{errors[cat._id]}</div>
+                    <div className="text-error text-xs mt-1">{errors[cat._id]}</div>
                   )}
                 </div>
               )}
 
               {tab === "approved" && (
-                <div style={{ marginTop: 10 }}>
-                  <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+                <div className="mt-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <input
-                      className="input"
-                      style={{ flex: 1, minWidth: 160 }}
+                      className="input input-bordered flex-1 min-w-[160px]"
                       placeholder="Rejection reason (required)..."
                       value={reasons[cat._id] || ""}
                       onChange={e => setReasons(r => ({ ...r, [cat._id]: e.target.value }))}
                     />
-                    <button className="btn danger small" onClick={() => reject(cat._id)}>
+                    <button className="btn btn-error btn-sm" onClick={() => reject(cat._id)}>
                       Revoke & Reject
                     </button>
                   </div>
                   {errors[cat._id] && (
-                    <div style={{ color: "var(--danger)", fontSize: 12, marginTop: 4 }}>{errors[cat._id]}</div>
+                    <div className="text-error text-xs mt-1">{errors[cat._id]}</div>
                   )}
                 </div>
               )}
 
               {tab === "rejected" && (
-                <div style={{ marginTop: 10 }}>
-                  <button className="btn primary small" onClick={() => approve(cat._id)}>
+                <div className="mt-2.5">
+                  <button className="btn btn-primary btn-sm" onClick={() => approve(cat._id)}>
                     Re-approve
                   </button>
                   {errors[cat._id] && (
-                    <div style={{ color: "var(--danger)", fontSize: 12, marginTop: 4 }}>{errors[cat._id]}</div>
+                    <div className="text-error text-xs mt-1">{errors[cat._id]}</div>
                   )}
                 </div>
               )}

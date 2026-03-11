@@ -64,29 +64,29 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
   }
 
   return (
-    <div className="comment">
-      <div className="commentHeader">
-        <div className="commentAuthor">
+    <div className="py-2.5 border-b border-base-300 text-sm last:border-b-0">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           {comment.authorId?.avatarUrl ? (
-            <img src={comment.authorId.avatarUrl} alt="avatar" className="commentAvatar" />
+            <img src={comment.authorId.avatarUrl} alt="avatar" className="w-7 h-7 rounded-full bg-base-300" />
           ) : (
-            <div className="commentAvatar" />
+            <div className="w-7 h-7 rounded-full bg-base-300" />
           )}
-          <div className="commentMeta">
-            <div className="commentName">{comment.authorId?.displayName || comment.authorId?.username || "Unknown"}</div>
-            <div className="commentTime">{formatTime(comment.createdAt)}</div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <div className="font-bold text-[13px]">{comment.authorId?.displayName || comment.authorId?.username || "Unknown"}</div>
+            <div className="text-xs text-base-content/60">{formatTime(comment.createdAt)}</div>
           </div>
         </div>
         {(isAuthor || canDelete) && !isEditing && (
-          <div className="commentActions">
+          <div className="flex flex-wrap items-center justify-end gap-1">
             {isAuthor && (
-              <button className="commentBtn" onClick={() => setIsEditing(true)} disabled={submitting}>
+              <button className="btn btn-ghost btn-xs" onClick={() => setIsEditing(true)} disabled={submitting}>
                 Edit
               </button>
             )}
             {canDelete && (
               <button
-                className="commentBtn danger"
+                className="btn btn-ghost btn-xs text-error hover:bg-error/10"
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={submitting}
                 title={isAdmin && !isAuthor ? "Delete as admin" : "Delete"}
@@ -99,17 +99,16 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
       </div>
 
       {isEditing ? (
-        <div className="commentEdit">
+        <div className="pl-9">
           <textarea
-            className="input"
+            className="textarea textarea-bordered input-sm w-full mb-2"
             value={editBody}
             onChange={(e) => setEditBody(e.target.value)}
             rows={3}
-            style={{ background: "var(--bg)", display: "block", marginBottom: 8, width: "100%" }}
           />
-          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+          <div className="flex gap-2 justify-end">
             <button
-              className="btn"
+              className="btn btn-xs"
               onClick={() => {
                 setIsEditing(false);
                 setEditBody(comment.body);
@@ -119,7 +118,7 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
               Cancel
             </button>
             <button
-              className="btn primary"
+              className="btn btn-primary btn-xs"
               onClick={handleSaveEdit}
               disabled={submitting || !editBody.trim() || editBody === comment.body}
             >
@@ -128,10 +127,10 @@ export default function Comment({ comment, postId, onDelete, onUpdate }) {
           </div>
         </div>
       ) : (
-        <div className="commentBody">{comment.body}</div>
+        <div className="pl-9 whitespace-pre-wrap">{comment.body}</div>
       )}
       {comment.updatedAt && new Date(comment.updatedAt) > new Date(comment.createdAt) && (
-        <div className="commentEdited">edited {formatTime(comment.updatedAt)}</div>
+        <div className="pl-9 text-[11px] italic text-base-content/50">edited {formatTime(comment.updatedAt)}</div>
       )}
 
       <ConfirmModal

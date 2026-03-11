@@ -72,9 +72,9 @@ export default function AuthModal() {
 
   const divider = (
     <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 0" }}>
-      <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
-      <span className="muted" style={{ fontSize: 13 }}>or</span>
-      <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+      <div style={{ flex: 1, height: 1, background: "var(--color-base-300)" }} />
+      <span className="text-base-content/60 text-sm">or</span>
+      <div style={{ flex: 1, height: 1, background: "var(--color-base-300)" }} />
     </div>
   );
 
@@ -82,9 +82,9 @@ export default function AuthModal() {
     <Modal open={loginOpen} title={mode === "login" ? "Sign in" : "Register"} onClose={handleClose}>
       {mode === "login" ? (
         <form onSubmit={handleLogin}>
-          <div className="muted" style={{ marginBottom: 6 }}>Email</div>
+          <div className="text-base-content/60 text-sm" style={{ marginBottom: 6 }}>Email</div>
           <input
-            className="input"
+            className="input input-bordered w-full"
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
@@ -92,35 +92,35 @@ export default function AuthModal() {
             autoFocus
           />
           <div style={{ height: 12 }} />
-          <div className="muted" style={{ marginBottom: 6 }}>Password</div>
+          <div className="text-base-content/60 text-sm" style={{ marginBottom: 6 }}>Password</div>
           <input
-            className="input"
+            className="input input-bordered w-full"
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             disabled={saving}
           />
           <div style={{ height: 16 }} />
-          <button className="btn primary" type="submit" disabled={saving} style={{ width: "100%" }}>
+          <button className="btn btn-primary w-full" type="submit" disabled={saving}>
             {saving ? "Signing in..." : "Sign in"}
           </button>
-          {error && <div style={{ color: "red", marginTop: 10, fontSize: 14 }}>{error}</div>}
+          {error && <div className="text-error text-xs mt-1">{error}</div>}
           {divider}
-          <a className="btn" href={`${apiBase}/auth/google`} style={{ display: "block", textAlign: "center", width: "100%", boxSizing: "border-box" }}>
+          <a className="btn w-full" href={`${apiBase}/auth/google`} style={{ textAlign: "center" }}>
             Continue with Google
           </a>
           <div style={{ marginTop: 16, fontSize: 14, textAlign: "center" }}>
-            <span className="muted">New? </span>
-            <button type="button" className="btn small" onClick={() => switchMode("register")}>
+            <span className="text-base-content/60 text-sm">New? </span>
+            <button type="button" className="btn btn-sm" onClick={() => switchMode("register")}>
               Register here
             </button>
           </div>
         </form>
       ) : (
         <form onSubmit={handleRegister}>
-          <div className="muted" style={{ marginBottom: 6 }}>Username</div>
+          <div className="text-base-content/60 text-sm" style={{ marginBottom: 6 }}>Username</div>
           <input
-            className="input"
+            className="input input-bordered w-full"
             type="text"
             value={username}
             onChange={e => setUsername(e.target.value)}
@@ -128,36 +128,36 @@ export default function AuthModal() {
             autoFocus
           />
           <div style={{ height: 12 }} />
-          <div className="muted" style={{ marginBottom: 6 }}>Email</div>
+          <div className="text-base-content/60 text-sm" style={{ marginBottom: 6 }}>Email</div>
           <input
-            className="input"
+            className="input input-bordered w-full"
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             disabled={saving}
           />
           <div style={{ height: 12 }} />
-          <div className="muted" style={{ marginBottom: 6 }}>Password</div>
+          <div className="text-base-content/60 text-sm" style={{ marginBottom: 6 }}>Password</div>
           <input
-            className="input"
+            className="input input-bordered w-full"
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             disabled={saving}
           />
           <div style={{ height: 4 }} />
-          <div className="muted" style={{ fontSize: 12, marginBottom: 12 }}>Minimum 8 characters</div>
-          <button className="btn primary" type="submit" disabled={saving} style={{ width: "100%" }}>
+          <div className="text-base-content/60 text-sm" style={{ marginBottom: 12 }}>Minimum 8 characters</div>
+          <button className="btn btn-primary w-full" type="submit" disabled={saving}>
             {saving ? "Creating account..." : "Create account"}
           </button>
-          {error && <div style={{ color: "red", marginTop: 10, fontSize: 14 }}>{error}</div>}
+          {error && <div className="text-error text-xs mt-1">{error}</div>}
           {divider}
-          <a className="btn" href={`${apiBase}/auth/google`} style={{ display: "block", textAlign: "center", width: "100%", boxSizing: "border-box" }}>
+          <a className="btn w-full" href={`${apiBase}/auth/google`} style={{ textAlign: "center" }}>
             Continue with Google
           </a>
           <div style={{ marginTop: 16, fontSize: 14, textAlign: "center" }}>
-            <span className="muted">Already have an account? </span>
-            <button type="button" className="btn small" onClick={() => switchMode("login")}>
+            <span className="text-base-content/60 text-sm">Already have an account? </span>
+            <button type="button" className="btn btn-sm" onClick={() => switchMode("login")}>
               Sign in
             </button>
           </div>

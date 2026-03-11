@@ -39,14 +39,13 @@ export default function Users() {
   return (
     <div style={{ maxWidth: 700 }}>
       {/* Toolbar */}
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
-          <div style={{ fontFamily: "Special Elite, serif", fontSize: 18, letterSpacing: "0.04em" }}>
+      <div className="card bg-base-100 border border-base-300 p-4 mb-4">
+        <div className="flex items-center justify-between flex-wrap gap-2.5">
+          <div className="font-[Special_Elite] text-lg tracking-wide">
             Personnel Directory
           </div>
           <input
-            className="input"
-            style={{ width: 220 }}
+            className="input input-bordered w-[220px]"
             placeholder="Search personnel..."
             value={q}
             onChange={(e) => { setCursor(null); setHasMore(true); setQ(e.target.value); }}
@@ -55,59 +54,44 @@ export default function Users() {
       </div>
 
       {/* User list */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        {items.map((u, i) => (
+      <div className="card bg-base-100 border border-base-300 overflow-hidden">
+        {items.map(u => (
           <Link
             key={u._id}
             to={`/users/${u._id}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 14,
-              padding: "14px 18px",
-              background: "var(--card)",
-              borderBottom: "1px solid var(--border)",
-              borderLeft: i === 0 ? "none" : "none",
-              textDecoration: "none",
-              color: "inherit",
-              transition: "background 0.15s",
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = "var(--bg)"}
-            onMouseLeave={e => e.currentTarget.style.background = "var(--card)"}
+            className="flex items-center gap-3 py-3 px-4 border-b border-base-300 no-underline text-base-content hover:bg-base-200 transition-colors last:border-b-0"
           >
             {u.avatarUrl ? (
               <img
                 src={u.avatarUrl}
                 alt={u.username}
-                style={{ width: 42, height: 42, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--border)", flexShrink: 0 }}
+                className="w-10 h-10 rounded-full bg-base-300 object-cover flex-shrink-0"
               />
             ) : (
-              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "var(--border)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, color: "var(--muted)" }}>
+              <div className="w-10 h-10 rounded-full bg-base-300 flex-shrink-0 flex items-center justify-center text-lg text-base-content/40">
                 &#128101;
               </div>
             )}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, letterSpacing: "0.01em", marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {u.username}
-              </div>
-              <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-sm truncate">{u.username}</div>
+              <div className="text-xs text-base-content/60 tracking-widest uppercase">
                 Enrolled {joinedLabel(u.createdAt)}
               </div>
             </div>
-            <div style={{ fontSize: 18, color: "var(--muted)", flexShrink: 0 }}>&#8250;</div>
+            <div className="text-lg text-base-content/40 flex-shrink-0">&#8250;</div>
           </Link>
         ))}
       </div>
 
       {/* Skeleton loaders */}
       {loading ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+        <div className="card bg-base-100 border border-base-300 overflow-hidden mt-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", background: "var(--card)", borderBottom: "1px solid var(--border)" }}>
-              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "var(--border)", flexShrink: 0 }} className="skeleton" />
-              <div style={{ flex: 1 }}>
-                <div className="skeletonLine" style={{ width: "35%", height: 14, marginBottom: 7 }} />
-                <div className="skeletonLine" style={{ width: "22%", height: 10 }} />
+            <div key={i} className="flex items-center gap-3 py-3 px-4 border-b border-base-300 last:border-b-0">
+              <div className="skeleton w-10 h-10 rounded-full flex-shrink-0" />
+              <div className="flex-1">
+                <div className="skeleton h-3.5 w-[35%] mb-1.5 rounded" />
+                <div className="skeleton h-2.5 w-[22%] rounded" />
               </div>
             </div>
           ))}
@@ -115,15 +99,15 @@ export default function Users() {
       ) : null}
 
       {!loading && items.length === 0 ? (
-        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--muted)" }}>
-          <div style={{ fontFamily: "Special Elite, serif", fontSize: 16, marginBottom: 6 }}>No personnel on record.</div>
-          <div style={{ fontSize: 13 }}>No users match your search.</div>
+        <div className="card bg-base-100 border border-base-300 p-4 text-center text-base-content/60 text-sm mt-3">
+          <div className="font-[Special_Elite] text-base mb-1.5">No personnel on record.</div>
+          <div>No users match your search.</div>
         </div>
       ) : null}
 
       <InfiniteSentinel disabled={!hasMore || loading} onVisible={() => loadMore(false)} />
       {!hasMore && items.length > 0 ? (
-        <div className="muted" style={{ textAlign: "center", padding: "12px 0", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+        <div className="text-center py-3 text-xs text-base-content/60 tracking-widest uppercase">
           — End of Directory —
         </div>
       ) : null}

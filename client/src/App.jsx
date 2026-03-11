@@ -16,9 +16,9 @@ import MyCats from "./pages/MyCats";
 
 export default function App() {
   return (
-    <div className="appShell">
+    <div className="grid grid-cols-[250px_1fr] min-h-screen max-[960px]:grid-cols-1">
       <Sidebar />
-      <main className="main">
+      <main className="flex-1 px-5 pb-5">
         <Topbar />
         <Routes>
           <Route path="/" element={<Navigate to="/newsfeed" replace />} />
@@ -31,7 +31,7 @@ export default function App() {
           <Route path="/me/cats" element={<MyCats />} />
           <Route path="/posts/:id" element={<PostDetail />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<div className="card">Not found</div>} />
+          <Route path="*" element={<div className="card bg-base-100 shadow-sm border border-base-300">Not found</div>} />
         </Routes>
       </main>
       <AuthModal />

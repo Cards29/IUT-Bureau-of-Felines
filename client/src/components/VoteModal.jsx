@@ -101,11 +101,11 @@ export default function VoteModal({ open, onClose, postId, postType, onVoted }) 
   return (
     <Modal open={open} title={title} onClose={handleClose}>
       {loading ? (
-        <div className="muted">Loading...</div>
+        <div className="text-base-content/60 text-sm">Loading...</div>
       ) : alreadyVoted ? (
         <div>
-          <div className="muted" style={{ marginBottom: 12 }}>You have already voted on this post.</div>
-          <div style={{ fontWeight: 900, color: isCommendation ? "green" : "red", fontSize: 16 }}>
+          <div className="text-base-content/60 text-sm" style={{ marginBottom: 12 }}>You have already voted on this post.</div>
+          <div style={{ fontWeight: 900, color: isCommendation ? "var(--color-success)" : "var(--color-error)", fontSize: 16 }}>
             {isCommendation ? "+" : "−"}{Math.abs(existingContribution).toFixed(2)}
           </div>
         </div>
@@ -114,48 +114,48 @@ export default function VoteModal({ open, onClose, postId, postType, onVoted }) 
           {isCommendation ? (
             <>
               <div style={{ marginBottom: 14 }}>
-                <div className="muted" style={{ marginBottom: 4 }}>Benefit <strong>{benefit}</strong></div>
-                <input type="range" min="0" max="10" step="1" value={benefit} onChange={e => setBenefit(Number(e.target.value))} style={{ width: "100%" }} />
+                <div className="text-base-content/60 text-sm" style={{ marginBottom: 4 }}>Benefit <strong>{benefit}</strong></div>
+                <input type="range" min="0" max="10" step="1" value={benefit} onChange={e => setBenefit(Number(e.target.value))} className="range range-primary" style={{ width: "100%" }} />
               </div>
               <div style={{ marginBottom: 14 }}>
-                <div className="muted" style={{ marginBottom: 4 }}>Effort <strong>{effort}</strong></div>
-                <input type="range" min="0" max="10" step="1" value={effort} onChange={e => setEffort(Number(e.target.value))} style={{ width: "100%" }} />
+                <div className="text-base-content/60 text-sm" style={{ marginBottom: 4 }}>Effort <strong>{effort}</strong></div>
+                <input type="range" min="0" max="10" step="1" value={effort} onChange={e => setEffort(Number(e.target.value))} className="range range-primary" style={{ width: "100%" }} />
               </div>
               <div style={{ marginBottom: 14 }}>
-                <div className="muted" style={{ marginBottom: 4 }}>Cuteness <strong>{cuteness}</strong></div>
-                <input type="range" min="0" max="10" step="1" value={cuteness} onChange={e => setCuteness(Number(e.target.value))} style={{ width: "100%" }} />
+                <div className="text-base-content/60 text-sm" style={{ marginBottom: 4 }}>Cuteness <strong>{cuteness}</strong></div>
+                <input type="range" min="0" max="10" step="1" value={cuteness} onChange={e => setCuteness(Number(e.target.value))} className="range range-primary" style={{ width: "100%" }} />
               </div>
             </>
           ) : (
             <>
               <div style={{ marginBottom: 14 }}>
-                <div className="muted" style={{ marginBottom: 4 }}>Malice <strong>{malice}</strong></div>
-                <input type="range" min="0" max="10" step="1" value={malice} onChange={e => setMalice(Number(e.target.value))} style={{ width: "100%" }} />
+                <div className="text-base-content/60 text-sm" style={{ marginBottom: 4 }}>Malice <strong>{malice}</strong></div>
+                <input type="range" min="0" max="10" step="1" value={malice} onChange={e => setMalice(Number(e.target.value))} className="range range-primary" style={{ width: "100%" }} />
               </div>
               <div style={{ marginBottom: 14 }}>
-                <div className="muted" style={{ marginBottom: 4 }}>Destruction <strong>{destruction}</strong></div>
-                <input type="range" min="0" max="10" step="1" value={destruction} onChange={e => setDestruction(Number(e.target.value))} style={{ width: "100%" }} />
+                <div className="text-base-content/60 text-sm" style={{ marginBottom: 4 }}>Destruction <strong>{destruction}</strong></div>
+                <input type="range" min="0" max="10" step="1" value={destruction} onChange={e => setDestruction(Number(e.target.value))} className="range range-primary" style={{ width: "100%" }} />
               </div>
               <div style={{ marginBottom: 14 }}>
-                <div className="muted" style={{ marginBottom: 4 }}>Cuteness <strong>{cuteness}</strong></div>
-                <input type="range" min="0" max="10" step="1" value={cuteness} onChange={e => setCuteness(Number(e.target.value))} style={{ width: "100%" }} />
+                <div className="text-base-content/60 text-sm" style={{ marginBottom: 4 }}>Cuteness <strong>{cuteness}</strong></div>
+                <input type="range" min="0" max="10" step="1" value={cuteness} onChange={e => setCuteness(Number(e.target.value))} className="range range-primary" style={{ width: "100%" }} />
               </div>
             </>
           )}
 
-          <div style={{ marginBottom: 14, fontWeight: 900, color: isCommendation ? "green" : "red" }}>
+          <div style={{ marginBottom: 14, fontWeight: 900, color: isCommendation ? "var(--color-success)" : "var(--color-error)" }}>
             Contribution: {isCommendation ? "+" : "−"}{Math.abs(preview).toFixed(2)}
           </div>
 
-          <div className="muted" style={{ fontSize: 12, marginBottom: 12 }}>
+          <div className="text-base-content/60 text-sm" style={{ marginBottom: 12 }}>
             Are you sure? You cannot change your vote later.
           </div>
 
-          <button className="btn primary" onClick={handleSubmit} disabled={submitting} style={{ width: "100%" }}>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={submitting} style={{ width: "100%" }}>
             {submitting ? "Submitting..." : "Submit Vote"}
           </button>
 
-          {error && <div style={{ color: "red", fontSize: 12, marginTop: 8 }}>{error}</div>}
+          {error && <div className="text-error text-xs mt-1">{error}</div>}
         </div>
       )}
     </Modal>

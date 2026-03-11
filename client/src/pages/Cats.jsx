@@ -10,7 +10,7 @@ function ScoreBadge({ score }) {
   if (typeof score !== "number") return null;
   const tier = score >= 12 ? "high" : score >= 8 ? "mid" : "low";
   return (
-    <span className={`scoreBadge ${tier}`}>
+    <span className={`scoreBadge badge font-[Special_Elite] text-[15px] px-2.5 ${tier}`}>
       Merit: {score.toFixed(1)}
     </span>
   );
@@ -50,20 +50,19 @@ export default function Cats() {
   return (
     <div style={{ maxWidth: 760 }}>
       {/* Toolbar */}
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
-          <div style={{ fontFamily: "Special Elite, serif", fontSize: 18, letterSpacing: "0.04em" }}>
+      <div className="card bg-base-100 border border-base-300 p-4 mb-4">
+        <div className="flex items-center justify-between flex-wrap gap-2.5">
+          <div className="font-[Special_Elite] text-lg tracking-wide">
             Registered Felines
           </div>
-          <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
+          <div className="flex flex-wrap items-center gap-2">
             <input
-              className="input"
-              style={{ width: 220 }}
+              className="input input-bordered w-[220px]"
               placeholder="Search by name..."
               value={q}
               onChange={(e) => { setCursor(null); setHasMore(true); setQ(e.target.value); }}
             />
-            <button className="btn primary" onClick={() => {
+            <button className="btn btn-primary" onClick={() => {
               if (!user) return openLogin();
               setOpen(true);
             }}>
@@ -77,16 +76,16 @@ export default function Cats() {
       </div>
 
       {/* Cat list */}
-      <div className="catFeed">
+      <div className="flex flex-col gap-3">
         {items.map(c => (
-          <Link key={c._id} to={`/cats/${c._id}`} className="catCard">
+          <Link key={c._id} to={`/cats/${c._id}`} className="card card-side bg-base-100 border border-base-300 shadow-sm hover:border-primary transition-colors cursor-pointer min-h-[140px] no-underline">
             {c.photoUrl
               ? <img className="catCardPhoto" src={c.photoUrl} alt={c.name} />
               : <div className="catCardPhotoPlaceholder">&#128049;</div>
             }
-            <div className="catCardBody">
-              <div className="catCardName">{c.name}</div>
-              {c.bio && <div className="catCardBio">{c.bio}</div>}
+            <div className="flex flex-col justify-center p-4 flex-1">
+              <div className="font-[Special_Elite] text-xl mb-1">{c.name}</div>
+              {c.bio && <div className="text-[13px] text-base-content/60 line-clamp-3">{c.bio}</div>}
               {typeof c.score === "number" && <ScoreBadge score={c.score} />}
             </div>
           </Link>
@@ -95,14 +94,14 @@ export default function Cats() {
 
       {/* Skeleton loaders */}
       {loading ? (
-        <div className="catFeed">
+        <div className="flex flex-col gap-3 mt-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="catCard" style={{ pointerEvents: "none" }}>
-              <div className="catCardPhotoPlaceholder" style={{ background: "var(--border)" }} />
-              <div className="catCardBody" style={{ gap: 10 }}>
-                <div className="skeletonLine" style={{ width: "40%", height: 18 }} />
-                <div className="skeletonLine" style={{ width: "80%", height: 11 }} />
-                <div className="skeletonLine" style={{ width: "60%", height: 11 }} />
+            <div key={i} className="card card-side bg-base-100 border border-base-300 min-h-[140px] pointer-events-none">
+              <div className="catCardPhotoPlaceholder skeleton" />
+              <div className="flex flex-col justify-center p-4 flex-1 gap-2.5">
+                <div className="skeleton h-[18px] rounded w-2/5" />
+                <div className="skeleton h-[11px] rounded w-4/5" />
+                <div className="skeleton h-[11px] rounded w-3/5" />
               </div>
             </div>
           ))}
@@ -110,15 +109,15 @@ export default function Cats() {
       ) : null}
 
       {!loading && items.length === 0 ? (
-        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--muted)" }}>
-          <div style={{ fontFamily: "Special Elite, serif", fontSize: 18, marginBottom: 6 }}>No felines on record.</div>
-          <div style={{ fontSize: 13 }}>Submit a registration request to get started.</div>
+        <div className="card bg-base-100 border border-base-300 p-4 text-center text-base-content/60 text-sm mt-3">
+          <div className="font-[Special_Elite] text-lg mb-1.5">No felines on record.</div>
+          <div>Submit a registration request to get started.</div>
         </div>
       ) : null}
 
       <InfiniteSentinel disabled={!hasMore || loading} onVisible={() => loadMore(false)} />
       {!hasMore && items.length > 0 ? (
-        <div className="muted" style={{ textAlign: "center", padding: "12px 0", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+        <div className="text-center py-3 text-xs text-base-content/60 tracking-widest uppercase">
           — End of Registry —
         </div>
       ) : null}

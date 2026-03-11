@@ -1,10 +1,10 @@
 import React from "react";
 
-export default function ConfirmModal({ 
-  open, 
-  title, 
-  message, 
-  onConfirm, 
+export default function ConfirmModal({
+  open,
+  title,
+  message,
+  onConfirm,
   onCancel,
   confirmText = "Delete",
   cancelText = "Cancel",
@@ -22,36 +22,34 @@ export default function ConfirmModal({
   if (!open) return null;
 
   return (
-    <div className="modalOverlay" onMouseDown={onCancel}>
-      <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
-        <div className="modalHeader">
+    <dialog className="modal modal-open">
+      <div className="modal-box w-full max-w-[720px] max-h-[88vh] overflow-y-auto p-0 rounded-[3px]">
+        <div className="flex items-center justify-between px-4 py-3 border-b-2 border-base-300 bg-base-200">
           <div style={{ fontWeight: 900 }}>{title}</div>
         </div>
-        <div className="modalBody">
-          <p style={{ marginBottom: 20, color: "var(--text)" }}>{message}</p>
+        <div className="p-4">
+          <p style={{ marginBottom: 20 }}>{message}</p>
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-            <button 
-              className="btn" 
+            <button
+              className="btn"
               onClick={onCancel}
               disabled={isLoading}
             >
               {cancelText}
             </button>
-            <button 
-              className={`btn ${isDanger ? "danger" : "primary"}`}
+            <button
+              className={`btn ${isDanger ? "btn-error" : "btn-primary"}`}
               onClick={onConfirm}
               disabled={isLoading}
-              style={isDanger ? { 
-                background: "#dc2626", 
-                borderColor: "#dc2626", 
-                color: "white" 
-              } : {}}
             >
               {isLoading ? "..." : confirmText}
             </button>
           </div>
         </div>
       </div>
-    </div>
+      <form method="dialog" className="modal-backdrop">
+        <button onClick={onCancel} />
+      </form>
+    </dialog>
   );
 }

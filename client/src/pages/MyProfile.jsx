@@ -67,32 +67,32 @@ export default function MyProfile() {
     }
   }
 
-  if (loading) return <div className="card">Loading...</div>;
+  if (loading) return <div className="card bg-base-100 border border-base-300 p-4">Loading...</div>;
   if (!user) return <Navigate to="/newsfeed" replace />;
 
   return (
     <div style={{ maxWidth: 700 }}>
-      <div className="card">
-        <div style={{ fontFamily: "Special Elite, serif", fontSize: 18, marginBottom: 14, letterSpacing: "0.04em" }}>
+      <div className="card bg-base-100 border border-base-300 p-4 mb-4">
+        <div className="font-[Special_Elite] text-lg tracking-wide mb-3.5">
           Personnel Record
         </div>
-        <div className="muted" style={{ fontSize: 12, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>Username</div>
-        <input className="input" value={username} onChange={e => setUsername(e.target.value)} />
-        {usernameError && <div style={{ color: "var(--danger)", fontSize: 13, marginTop: 6 }}>{usernameError}</div>}
-        <div style={{ height: 10 }} />
-        <div className="row" style={{ gap: 8 }}>
-          <button className="btn primary" disabled={saving || username === user.username} onClick={saveUsername}>
+        <div className="text-base-content/60 text-xs tracking-wide uppercase mb-1.5">Username</div>
+        <input className="input input-bordered w-full" value={username} onChange={e => setUsername(e.target.value)} />
+        {usernameError && <div className="text-error text-xs mt-1">{usernameError}</div>}
+        <div className="h-2.5" />
+        <div className="flex items-center gap-2">
+          <button className="btn btn-primary" disabled={saving || username === user.username} onClick={saveUsername}>
             {saving ? "Saving..." : "Save Username"}
           </button>
           <Link to="/me/cats" className="btn">My Cat Requests</Link>
         </div>
       </div>
 
-      <div style={{ marginBottom: 10, fontFamily: "Special Elite, serif", fontSize: 14, letterSpacing: "0.04em", color: "var(--muted)", textTransform: "uppercase" }}>
+      <div className="mb-2.5 font-[Special_Elite] text-[13px] tracking-widest text-base-content/60 uppercase">
         My Filed Reports
       </div>
 
-      <div className="postFeed" style={{ maxWidth: "100%" }}>
+      <div className="max-w-[700px]">
         {posts.map(p => (
           <PostCard key={p._id} post={p} onVoted={(score) => {
             setPosts(prev => prev.map(x => x._id === p._id ? { ...x, voteScore: score } : x));
@@ -100,22 +100,19 @@ export default function MyProfile() {
         ))}
 
         {loadingPosts ? (
-          <div className="skeletonCard">
-            <div className="skeletonLine" style={{ width: "40%", height: 10, marginBottom: 10 }} />
-            <div className="skeletonLine" style={{ width: "70%", height: 18 }} />
-          </div>
+          <div className="skeleton h-32 w-full mb-3" />
         ) : null}
 
         {!loadingPosts && posts.length === 0 ? (
-          <div className="card" style={{ textAlign: "center", padding: "24px 16px", color: "var(--muted)" }}>
-            <div style={{ fontFamily: "Special Elite, serif", fontSize: 16, marginBottom: 4 }}>No reports filed.</div>
-            <div style={{ fontSize: 13 }}>Your submitted commendations and infractions will appear here.</div>
+          <div className="card bg-base-100 border border-base-300 p-4 text-center text-base-content/60 text-sm">
+            <div className="font-[Special_Elite] text-base mb-1">No reports filed.</div>
+            <div>Your submitted commendations and infractions will appear here.</div>
           </div>
         ) : null}
 
         <InfiniteSentinel disabled={!hasMore || loadingPosts} onVisible={() => loadMore(false)} />
         {!hasMore && posts.length > 0 ? (
-          <div className="muted" style={{ textAlign: "center", padding: "12px 0", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+          <div className="text-center py-3 text-xs text-base-content/60 tracking-widest uppercase">
             — End of Records —
           </div>
         ) : null}

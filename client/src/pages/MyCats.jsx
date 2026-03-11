@@ -12,17 +12,11 @@ const TAB_LABELS = {
   rejected: "Rejected",
 };
 
-const STATUS_COLORS = {
-  pending: "#b45309",
-  approved: "#166534",
-  rejected: "var(--danger)",
-};
-
 function ScoreBadge({ score }) {
   if (typeof score !== "number") return null;
   const tier = score >= 12 ? "high" : score >= 8 ? "mid" : "low";
   return (
-    <span className={`scoreBadge ${tier}`}>
+    <span className={`scoreBadge badge font-[Special_Elite] text-[15px] px-2.5 ${tier}`}>
       Merit: {score.toFixed(1)}
     </span>
   );
@@ -69,10 +63,7 @@ export default function MyCats() {
   if (authLoading) {
     return (
       <div style={{ maxWidth: 760 }}>
-        <div className="skeletonCard">
-          <div className="skeletonLine" style={{ width: "30%", height: 18, marginBottom: 12 }} />
-          <div className="skeletonLine" style={{ width: "50%", height: 12 }} />
-        </div>
+        <div className="skeleton h-32 w-full mb-3" />
       </div>
     );
   }
@@ -81,15 +72,15 @@ export default function MyCats() {
   return (
     <div style={{ maxWidth: 760 }}>
       {/* Header toolbar */}
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ fontFamily: "Special Elite, serif", fontSize: 18, letterSpacing: "0.04em", marginBottom: 14 }}>
+      <div className="card bg-base-100 border border-base-300 p-4 mb-4">
+        <div className="font-[Special_Elite] text-lg tracking-wide mb-3.5">
           My Registration Requests
         </div>
-        <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+        <div className="flex items-center gap-2 flex-wrap">
           {TABS.map(t => (
             <button
               key={t}
-              className={"btn" + (tab === t ? " primary" : "")}
+              className={"btn btn-sm" + (tab === t ? " btn-primary" : "")}
               onClick={() => setTab(t)}
             >
               {TAB_LABELS[t]}
@@ -99,31 +90,28 @@ export default function MyCats() {
       </div>
 
       {/* Cat list */}
-      <div className="catFeed">
+      <div className="flex flex-col gap-3">
         {items.map(c => (
-          <Link key={c._id} to={`/cats/${c._id}`} className="catCard">
+          <Link key={c._id} to={`/cats/${c._id}`} className="card card-side bg-base-100 border border-base-300 shadow-sm hover:border-primary transition-colors cursor-pointer min-h-[140px] no-underline">
             {c.photoUrl
               ? <img className="catCardPhoto" src={c.photoUrl} alt={c.name} />
               : <div className="catCardPhotoPlaceholder">&#128049;</div>
             }
-            <div className="catCardBody">
-              <div className="catCardName">{c.name}</div>
-              {c.bio && <div className="catCardBio">{c.bio}</div>}
-              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 4 }}>
-                <span style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                  color: STATUS_COLORS[c.status],
-                }}>
+            <div className="flex flex-col justify-center p-4 flex-1">
+              <div className="font-[Special_Elite] text-xl mb-1">{c.name}</div>
+              {c.bio && <div className="text-[13px] text-base-content/60 line-clamp-3">{c.bio}</div>}
+              <div className="flex items-center gap-2.5 flex-wrap mt-1">
+                <span className={
+                  "text-[11px] font-bold tracking-widest uppercase " +
+                  (c.status === "approved" ? "text-success" : c.status === "pending" ? "text-warning" : "text-error")
+                }>
                   {TAB_LABELS[c.status] || c.status}
                 </span>
                 {c.status === "approved" && <ScoreBadge score={c.score} />}
               </div>
               {c.status === "rejected" && c.rejectionReason && (
-                <div className="rejectionCallout">
-                  <span style={{ fontWeight: 700, letterSpacing: "0.04em" }}>Reason: </span>
+                <div className="alert alert-error text-sm mt-2">
+                  <span className="font-bold tracking-wide">Reason: </span>
                   {c.rejectionReason}
                 </div>
               )}
@@ -134,14 +122,14 @@ export default function MyCats() {
 
       {/* Skeleton loaders */}
       {loading ? (
-        <div className="catFeed">
+        <div className="flex flex-col gap-3 mt-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="catCard" style={{ pointerEvents: "none" }}>
-              <div className="catCardPhotoPlaceholder" style={{ background: "var(--border)" }} />
-              <div className="catCardBody" style={{ gap: 10 }}>
-                <div className="skeletonLine" style={{ width: "40%", height: 18 }} />
-                <div className="skeletonLine" style={{ width: "80%", height: 11 }} />
-                <div className="skeletonLine" style={{ width: "30%", height: 11 }} />
+            <div key={i} className="card card-side bg-base-100 border border-base-300 min-h-[140px] pointer-events-none">
+              <div className="catCardPhotoPlaceholder skeleton" />
+              <div className="flex flex-col justify-center p-4 flex-1 gap-2.5">
+                <div className="skeleton h-[18px] rounded w-2/5" />
+                <div className="skeleton h-[11px] rounded w-4/5" />
+                <div className="skeleton h-[11px] rounded w-[30%]" />
               </div>
             </div>
           ))}
@@ -149,11 +137,11 @@ export default function MyCats() {
       ) : null}
 
       {!loading && items.length === 0 ? (
-        <div className="card" style={{ textAlign: "center", padding: "32px 16px", color: "var(--muted)" }}>
-          <div style={{ fontFamily: "Special Elite, serif", fontSize: 16, marginBottom: 6 }}>
+        <div className="card bg-base-100 border border-base-300 p-4 text-center text-base-content/60 text-sm mt-3">
+          <div className="font-[Special_Elite] text-base mb-1.5">
             No {TAB_LABELS[tab].toLowerCase()} requests.
           </div>
-          <div style={{ fontSize: 13 }}>
+          <div>
             {tab === "pending" && "Submitted registrations awaiting review will appear here."}
             {tab === "approved" && "Your approved felines will appear here."}
             {tab === "rejected" && "Rejected registration requests will appear here."}
@@ -163,7 +151,7 @@ export default function MyCats() {
 
       <InfiniteSentinel disabled={!hasMore || loading} onVisible={() => loadMore(false)} />
       {!hasMore && items.length > 0 ? (
-        <div className="muted" style={{ textAlign: "center", padding: "12px 0", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+        <div className="text-center py-3 text-xs text-base-content/60 tracking-widest uppercase">
           — End of Records —
         </div>
       ) : null}
